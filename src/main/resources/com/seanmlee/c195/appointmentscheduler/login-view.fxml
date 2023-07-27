@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<?import javafx.scene.control.PasswordField?>
+<AnchorPane prefHeight="336.0" prefWidth="632.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seanmlee.c195.appointmentscheduler.controller.LoginController">
+   <children>
+      <Text fx:id="userNameLabel" layoutX="157.0" layoutY="143.0" strokeType="OUTSIDE" strokeWidth="0.0" text="User Name">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text fx:id="passwordLabel" layoutX="157.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Password">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <TextField fx:id="userNameInputField" layoutX="318.0" layoutY="123.0" />
+      <PasswordField fx:id="passwordInputField" layoutX="318.0" layoutY="161.0" />
+      <Button fx:id="loginButton" layoutX="157.0" layoutY="207.0" mnemonicParsing="false" onMouseClicked="#onClickLoginButton" prefHeight="26.0" prefWidth="148.0" text="Login" />
+      <Button fx:id="clearFormButton" layoutX="330.0" layoutY="207.0" mnemonicParsing="false" onMouseClicked="#onClickClearFormButton" prefHeight="26.0" prefWidth="148.0" text="Clear Form" />
+      <Text fx:id="languageSettingLabel" layoutX="154.0" layoutY="258.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Language Settings" visible="false">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <ChoiceBox fx:id="languageSelectorBox" layoutX="311.0" layoutY="239.0" prefWidth="150.0" visible="false" />
+      <Text fx:id="timeZoneLabel" layoutX="225.0" layoutY="311.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Time zone: " />
+      <Text fx:id="pageHeaderLabel" layoutX="240.0" layoutY="88.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign into Your Account" wrappingWidth="179.0107421875">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+   </children>
+</AnchorPane>
