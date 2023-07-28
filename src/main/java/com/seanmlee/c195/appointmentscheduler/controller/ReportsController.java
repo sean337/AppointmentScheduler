@@ -3,8 +3,9 @@ package com.seanmlee.c195.appointmentscheduler.controller;
 import com.seanmlee.c195.appointmentscheduler.Main;
 import com.seanmlee.c195.appointmentscheduler.dao.AppointmentDAO;
 import com.seanmlee.c195.appointmentscheduler.dao.ContactDAO;
-import com.seanmlee.c195.appointmentscheduler.model.Appointment;
-import com.seanmlee.c195.appointmentscheduler.model.FirstLevelDivision;
+import com.seanmlee.c195.appointmentscheduler.dao.CustomerDAO;
+import com.seanmlee.c195.appointmentscheduler.dao.FirstLevelDivisionDAO;
+import com.seanmlee.c195.appointmentscheduler.model.*;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +26,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.Month;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -53,38 +55,32 @@ public class ReportsController implements Initializable {
     @FXML private TableColumn totalCustomers;
     @FXML private Button backButton;
 
+    private Contact selectedContact;
 
-    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private List<Appointment> appointments;
 
-    public void updateTablesByContact() throws SQLException {
+    private  ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private  ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
 
-//        try {
-//
-//            if (contactComboBox.getSelectionModel().getSelectedItem().equals("U.S")) {
-//                appointmentObservableList.clear();
-//                appointmentObservableList.addAll(AppointmentDAO.getAppointmentByContactId(1));
-//                appointmentTableView.setItems(appointmentObservableList);
-//
-//            } else if (countrySelector.getValue().equals("UK")) {
-//                divisions = FirstLevelDivisionDAO.sortedDivisions(2);
-//                for (FirstLevelDivision division : divisions) {
-//                    firstLevelDivisions.add(division.getName());
-//                }
-//                stateSelector.setItems(firstLevelDivisions);
-//            } else if (countrySelector.getValue().equals("Canada")) {
-//                divisions = FirstLevelDivisionDAO.sortedDivisions(3);
-//                for (FirstLevelDivision division : divisions) {
-//                    firstLevelDivisions.add(division.getName());
-//                }
-//                stateSelector.setItems(firstLevelDivisions);
-//            } else {
-//                divisions = new ArrayList();
-//            }
-//        }
-//        catch (SQLException e) {
-//            e.printStackTrace();
-//        }
+    private ObservableList<Report> reportsOberservableList = FXCollections.observableArrayList();
+
+    private ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
+    private HashMap<Month, Report> monthlyReportMap = new HashMap<Month, Report>();
+
+    private HashMap<FirstLevelDivision, Report> divisionReportMap = new HashMap<>();
+
+    List<FirstLevelDivision> divisionsList = FirstLevelDivisionDAO.getFirstLevelDivision();
+
+    public ReportsController() throws SQLException {
     }
+
+    public void refreshAppointmentTable(List<Appointment> appointments) {
+        appointmentObservableList.clear();
+        appointmentObservableList.addAll(appointments);
+        appointmentTableView.setItems(appointmentObservableList);
+        appointmentTableView.refresh();
+    }
+
     public void backButtonClick(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) backButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("welcome-view.fxml"));
@@ -110,6 +106,81 @@ public class ReportsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            contactsObservableList.setAll(ContactDAO.getContacts());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        contactComboBox.setItems(contactsObservableList);
+        contactComboBox.valueProperty().addListener((observableValue, o, t1) -> {
+            appointmentObservableList.clear();
+            reportsOberservableList.clear();
+            monthlyReportMap.clear();
+
+            selectedContact = (Contact) contactComboBox.getSelectionModel().getSelectedItem();
+            try {
+                appointments = AppointmentDAO.getAppointmentByContactId(selectedContact.getId());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            appointmentObservableList.setAll(appointments);
+            appointmentTableView.setItems(appointmentObservableList);
+            appointmentTableView.refresh();
+
+
+            for (Month month : Month.values()) {
+                Report report = new Report(month, 0);
+                reportsOberservableList.add(report);
+                monthlyReportMap.put(month, report);
+            }
+            for (Appointment appointment : appointments) {
+                Month month = appointment.getStart().getMonth();
+                Report report = monthlyReportMap.get(month);
+                if (report != null) {
+                    report.setAppointmentCount(report.getAppointmentCount() + 1);
+                }
+            }
+            yearlyGlanceTable.setItems(reportsOberservableList);
+            yearlyGlanceTable.refresh();
+
+
+            for (FirstLevelDivision division : divisionsList) {
+                String divisionName = division.getName();
+                Report report = new Report(0, divisionName);
+                divisionReportMap.put(division, report);
+                divisionsOberservableList.add(report);
+                }
+
+            for (Appointment appointment : appointments) {
+                try {
+                    Customer customer = CustomerDAO.findCustomer(appointment.getCustomerId());
+                    String divisionName = FirstLevelDivisionDAO.getDivisionNameById(customer.getDivisionId());
+                    Report report = divisionReportMap.get(divisionName);
+                    if (report != null) {
+                        report.setCustomerCount(report.getCustomerCount() + 1);
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                divisionTable.setItems(divisionsOberservableList);
+                divisionTable.refresh();
+            }
+            yearlyGlanceTable.setItems(reportsOberservableList);
+            yearlyGlanceTable.refresh();
+            divisionTable.setItems(divisionsOberservableList);
+            divisionTable.refresh();
+
+
+
+
+
+
+
+
+        });
+
+
+
 
         apptIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         apptTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
@@ -119,13 +190,15 @@ public class ReportsController implements Initializable {
         apptEndColumn.setCellValueFactory(new PropertyValueFactory<>("end"));
         apptLocationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
         apptCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerId"));
-        appointmentTableView.refresh();
 
-//        try {
-//            contactComboBox.setItems();
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
+
+        monthCol.setCellValueFactory(new PropertyValueFactory<>("month"));
+        totalAppointments.setCellValueFactory(new PropertyValueFactory<>("appointmentCount"));
+        yearlyGlanceTable.refresh();
+
+        divisionName.setCellValueFactory(new PropertyValueFactory<>("divisionName"));
+        totalCustomers.setCellValueFactory(new PropertyValueFactory<>("customerCount"));
+        divisionTable.refresh();
 
 
     }

@@ -99,6 +99,31 @@ public class CustomerDAO {
         preparedStatement.executeUpdate();
     }
 
+    public static Customer findCustomer(long customerId) throws SQLException {
+        DBConnection.openConnection();
+        String sqlStatement = "SELECT * FROM client_schedule.customers WHERE Customer_ID = ?";
+        PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);
+        preparedStatement.setLong(1, customerId);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Customer> customers = new ArrayList<>();
+        Customer customer = null;
+        if (resultSet.next()) {
+            long id = resultSet.getLong("Customer_ID");
+            String customerName = resultSet.getString("Customer_Name");
+            String address = resultSet.getString("Address");
+            String postalCode = resultSet.getString("Postal_Code");
+            String phoneNumber = resultSet.getString("Phone");
+            Timestamp createDate = resultSet.getTimestamp("Create_Date");
+            String createdBy = resultSet.getString("Created_By");
+            Timestamp lastUpdate = resultSet.getTimestamp("Last_Update");
+            String lastUpdatedBy = resultSet.getString("Last_Updated_By");
+            long divisionId = resultSet.getLong("Division_ID");
+            customer = new Customer(id, customerName, address, postalCode, phoneNumber, createDate.toLocalDateTime(),
+                    lastUpdate.toLocalDateTime(), createdBy, lastUpdatedBy, divisionId);
+        }
+        DBConnection.closeConnection();
+        return customer;
+    }
 
 
-}
+    }

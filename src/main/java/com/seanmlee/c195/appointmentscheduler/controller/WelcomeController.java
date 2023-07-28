@@ -49,7 +49,6 @@ public class WelcomeController {
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
         ReportsController reportsController = fxmlLoader.getController();
-        //List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
         List<Customer> allCustomersList = CustomerDAO.getCustomers();
         //reportsController.refreshAppointmentTable(userAppointmentList);
 
