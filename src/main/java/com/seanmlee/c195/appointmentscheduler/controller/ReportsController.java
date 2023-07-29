@@ -62,12 +62,12 @@ public class ReportsController implements Initializable {
     private  ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
     private  ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
 
-    private ObservableList<Report> reportsOberservableList = FXCollections.observableArrayList();
+    private ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
 
     private ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
     private HashMap<Month, Report> monthlyReportMap = new HashMap<Month, Report>();
 
-    private HashMap<FirstLevelDivision, Report> divisionReportMap = new HashMap<>();
+    private HashMap<String, Report> divisionReportMap = new HashMap<>();
 
     List<FirstLevelDivision> divisionsList = FirstLevelDivisionDAO.getFirstLevelDivision();
 
@@ -114,7 +114,10 @@ public class ReportsController implements Initializable {
         contactComboBox.setItems(contactsObservableList);
         contactComboBox.valueProperty().addListener((observableValue, o, t1) -> {
             appointmentObservableList.clear();
-            reportsOberservableList.clear();
+            yearlyGlanceObservableList.clear();
+            monthlyReportMap.clear();
+
+            divisionsOberservableList.clear();
             monthlyReportMap.clear();
 
             selectedContact = (Contact) contactComboBox.getSelectionModel().getSelectedItem();
@@ -127,12 +130,19 @@ public class ReportsController implements Initializable {
             appointmentTableView.setItems(appointmentObservableList);
             appointmentTableView.refresh();
 
-
+            // Loops through each month of the year
+            // Creates a Report Object by creating a new report for each Month and assigning it a count of 0
+            //Adds the month value as a key, and the report object to the hashmap
             for (Month month : Month.values()) {
                 Report report = new Report(month, 0);
-                reportsOberservableList.add(report);
+                yearlyGlanceObservableList.add(report);
                 monthlyReportMap.put(month, report);
             }
+
+            // Loops through each appointment in current selected appointment list
+            // selects the month from the start of each appointment, gets the report from the map stored with that Key(month)
+            // if the report isn't null it adds 1 to the appointment count from the report
+            //updates the year at a glance table
             for (Appointment appointment : appointments) {
                 Month month = appointment.getStart().getMonth();
                 Report report = monthlyReportMap.get(month);
@@ -140,15 +150,15 @@ public class ReportsController implements Initializable {
                     report.setAppointmentCount(report.getAppointmentCount() + 1);
                 }
             }
-            yearlyGlanceTable.setItems(reportsOberservableList);
+            yearlyGlanceTable.setItems(yearlyGlanceObservableList);
             yearlyGlanceTable.refresh();
 
 
             for (FirstLevelDivision division : divisionsList) {
                 String divisionName = division.getName();
-                Report report = new Report(0, divisionName);
-                divisionReportMap.put(division, report);
+                Report report = new Report(divisionName, 0);
                 divisionsOberservableList.add(report);
+                divisionReportMap.put(divisionName, report);
                 }
 
             for (Appointment appointment : appointments) {
@@ -158,28 +168,16 @@ public class ReportsController implements Initializable {
                     Report report = divisionReportMap.get(divisionName);
                     if (report != null) {
                         report.setCustomerCount(report.getCustomerCount() + 1);
+                        System.out.println(report.getCustomerCount());
+                        System.out.println(report.getDivisionName());
                     }
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-                divisionTable.setItems(divisionsOberservableList);
-                divisionTable.refresh();
             }
-            yearlyGlanceTable.setItems(reportsOberservableList);
-            yearlyGlanceTable.refresh();
             divisionTable.setItems(divisionsOberservableList);
             divisionTable.refresh();
-
-
-
-
-
-
-
-
         });
-
-
 
 
         apptIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));

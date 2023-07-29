@@ -83,6 +83,8 @@ public class UpdateAppointmentController implements Initializable {
         catch (SQLException e){
             throw new RuntimeException(e);
         }
+        apptStartTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
+        apptEndTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
 
     }
 

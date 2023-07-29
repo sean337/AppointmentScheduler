@@ -28,7 +28,7 @@ public class FirstLevelDivisionDAO {
                 String createdBy = resultSet.getString("Created_By");
                 Timestamp lastUpdate = resultSet.getTimestamp("Last_Update");
                 String lastUpdatedBy = resultSet.getString("Last_Updated_By");
-                long countryId = resultSet.getLong("countryId");
+                long countryId = resultSet.getLong("country_Id");
                 FirstLevelDivision firstLevelDivision = new FirstLevelDivision(id, divisionName,
                         createDate.toLocalDateTime(), lastUpdate.toLocalDateTime(), createdBy, lastUpdatedBy, countryId);
                 firstLevelDivisions.add(firstLevelDivision);

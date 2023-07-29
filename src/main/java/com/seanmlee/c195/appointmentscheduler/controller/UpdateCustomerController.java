@@ -83,6 +83,7 @@ public class UpdateCustomerController implements Initializable {
                 throw new RuntimeException(e);
             }
         });
+
     }
 
         public void onSaveClick (ActionEvent actionEvent) throws SQLException, IOException {

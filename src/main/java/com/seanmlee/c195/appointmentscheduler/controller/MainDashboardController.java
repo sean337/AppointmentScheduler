@@ -264,7 +264,15 @@ public class MainDashboardController implements Initializable {
     }
 
 
-    public void reportsClick(ActionEvent actionEvent) {
+    public void reportsClick(ActionEvent actionEvent) throws IOException {
+        Stage stage = (Stage) reportsButton.getScene().getWindow();
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("reports-view.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root);
 
+
+        stage.setTitle("Appointment Management System - Your Appointments");
+        stage.setScene(scene);
+        stage.show();
     }
 }

@@ -44,13 +44,10 @@ public class WelcomeController {
 
 
     public void onViewReportsButtonClick(ActionEvent actionEvent) throws IOException, SQLException {
-        Stage stage = (Stage) viewAppointmentsButton.getScene().getWindow();
+        Stage stage = (Stage) reportsButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("reports-view.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
-        ReportsController reportsController = fxmlLoader.getController();
-        List<Customer> allCustomersList = CustomerDAO.getCustomers();
-        //reportsController.refreshAppointmentTable(userAppointmentList);
 
 
         stage.setTitle("Appointment Management System - Your Appointments");
