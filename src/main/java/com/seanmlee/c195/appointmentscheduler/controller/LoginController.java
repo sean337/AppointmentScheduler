@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
-
     @FXML
     private TextField userNameInputField;
     @FXML
@@ -62,7 +61,10 @@ public class LoginController implements Initializable {
         User validatedUser = UserDAO.validateUser(username,password);
         //Starting new UserSession instance
         if (validatedUser == null) {
-            System.out.println("No user Found!");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid User");
+            alert.setContentText("This username and password can't be found");
+            alert.showAndWait();
             return;
         }
         UserSession.getInstance(validatedUser.getId(), validatedUser.getUserName());

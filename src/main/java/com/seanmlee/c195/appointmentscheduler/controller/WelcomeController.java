@@ -9,17 +9,23 @@ import com.seanmlee.c195.appointmentscheduler.util.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
-public class WelcomeController {
+public class WelcomeController implements Initializable {
     @FXML private Text welcomeLabel;
     @FXML private Button viewAppointmentsButton;
     @FXML private Button viewCustomersButton;
@@ -40,7 +46,7 @@ public class WelcomeController {
         stage.setTitle("Appointment Management System - Your Appointments");
         stage.setScene(scene);
         stage.show();
-    }
+        }
 
 
     public void onViewReportsButtonClick(ActionEvent actionEvent) throws IOException, SQLException {
@@ -63,5 +69,25 @@ public class WelcomeController {
         stage.setTitle("Appointment Management System - Login");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        List<Appointment> userAppointmentList = null;
+        try {
+            userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        List<Appointment> upcomingAppointments = userAppointmentList.stream()
+                .filter(appointment -> appointment.getStart().isAfter(LocalDateTime.now())
+                        && appointment.getStart().isBefore(LocalDateTime.now().plusMinutes(15))).toList();
+        if (!upcomingAppointments.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("REMINDER!");
+            alert.setHeaderText("Appointment Starting Soon");
+            alert.setContentText("You have " + upcomingAppointments.size() + " appointments in the next 15 minutes");
+            alert.showAndWait();
+        }
     }
 }

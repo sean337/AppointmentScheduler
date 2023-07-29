@@ -243,4 +243,42 @@ public class AppointmentDAO {
         DBConnection.closeConnection();
         return appointmentList;
     }
+
+    public static List<Appointment> getAppointmentsByCustomerID(long customerId) throws SQLException {
+        DBConnection.openConnection();
+        String sqlStatement = "SELECT * FROM client_schedule.appointments WHERE Customer_ID = ?";
+        PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);
+        preparedStatement.setLong(1, customerId);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Appointment> appointmentList = new ArrayList<>();
+        try {
+            while (resultSet.next()) {
+                long appointmentId = resultSet.getLong("Appointment_ID");
+                String title = resultSet.getString("Title");
+                String description = resultSet.getString("Description");
+                String location = resultSet.getString("Location");
+                String type = resultSet.getString("Type");
+                Timestamp startTimestamp = resultSet.getTimestamp("Start");
+                Timestamp endTimeStamp = resultSet.getTimestamp("End");
+                Timestamp createTimeStamp = resultSet.getTimestamp("Create_Date");
+                LocalDateTime start = startTimestamp.toLocalDateTime();
+                LocalDateTime end = endTimeStamp.toLocalDateTime();
+                LocalDateTime createDate = createTimeStamp.toLocalDateTime();
+                String createdBy = resultSet.getString("Created_By");
+                Timestamp lastUpdateTimeStamp = resultSet.getTimestamp("Last_Update");
+                LocalDateTime lastUpdate = lastUpdateTimeStamp.toLocalDateTime();
+                String lastUpdatedBy = resultSet.getString("Last_Updated_By");
+                long custId = resultSet.getLong("Customer_ID");
+                long userIdCol = resultSet.getLong("User_ID");
+                long apptContactId = resultSet.getLong("Contact_ID");
+                Appointment appointment = new Appointment(appointmentId, title, description, location, type, start, end,
+                        createDate, lastUpdate, createdBy, lastUpdatedBy, custId, userIdCol, apptContactId);
+                appointmentList.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        DBConnection.closeConnection();
+        return appointmentList;
+    }
 }

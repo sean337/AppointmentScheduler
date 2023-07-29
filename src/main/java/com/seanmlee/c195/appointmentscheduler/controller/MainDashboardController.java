@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainDashboardController implements Initializable {
@@ -42,7 +43,6 @@ public class MainDashboardController implements Initializable {
     private Button addApptButton;
     @FXML
     private Button updateApptButton;
-
     @FXML
     private Button deleteApptButton;
     @FXML
@@ -69,14 +69,12 @@ public class MainDashboardController implements Initializable {
     private TableColumn<Appointment, String> apptLocationColumn;
     @FXML
     private TableColumn apptCustomerColumn;
-
     @FXML
     private TableColumn<Appointment, String> apptCreatedBy;
     @FXML
     private TableColumn<Appointment, String> apptUpdatedBy;
     @FXML
     private TableColumn<Appointment, LocalDateTime> apptLastUpdated;
-
     @FXML
     private TableView<Customer> customerTableView;
     @FXML
@@ -91,7 +89,6 @@ public class MainDashboardController implements Initializable {
     private TableColumn customerStateColumn;
     @FXML
     private TableColumn customerPostalCodeColumn;
-
     private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
     private final ObservableList<Customer> customerObservableList = FXCollections.observableArrayList();
     public void refreshAppointmentTable(List<Appointment> appointments) {
@@ -110,7 +107,6 @@ public class MainDashboardController implements Initializable {
     }
 
     public void onAddApptButtonClick(ActionEvent actionEvent) throws IOException {
-
         Stage stage = (Stage) addApptButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("add-appointment-view.fxml"));
         Parent root = fxmlLoader.load();
@@ -123,27 +119,50 @@ public class MainDashboardController implements Initializable {
 
     public void onUpdateApptButtonClick(ActionEvent actionEvent) throws IOException {
         Appointment selectedAppointment = appointmentTableView.getSelectionModel().getSelectedItem();
+        try {
+            Stage stage = (Stage) updateApptButton.getScene().getWindow();
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("update-appointment-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root);
+            UpdateAppointmentController updateAppointmentController = fxmlLoader.getController();
+            updateAppointmentController.setAppointmentData(selectedAppointment);
+            stage.setTitle("Appointment Management System - Update an Appointment");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred. Check your selection and try again.");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
 
-        Stage stage = (Stage) updateApptButton.getScene().getWindow();
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("update-appointment-view.fxml"));
-        Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root);
-        UpdateAppointmentController updateAppointmentController = fxmlLoader.getController();
-
-        updateAppointmentController.setAppointmentData(selectedAppointment);
-
-        stage.setTitle("Appointment Management System - Update an Appointment");
-        stage.setScene(scene);
-        stage.show();
+        }
     }
 
     public void onDeleteApptButtonClick(ActionEvent actionEvent) throws SQLException {
         Appointment selectedAppointment = appointmentTableView.getSelectionModel().getSelectedItem();
-        long selectedId = selectedAppointment.getId();
-        System.out.println(selectedId);
-        AppointmentDAO.deleteAppointment(selectedId);
-        appointmentTableView.getItems().remove(selectedAppointment);
-        appointmentTableView.refresh();
+        if (selectedAppointment != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Action");
+            alert.setHeaderText("Are You Sure?");
+            alert.setContentText("Once you delete an appointment this action can't be undone!");
+
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == ButtonType.OK) {
+                long selectedId = selectedAppointment.getId();
+                System.out.println(selectedId);
+                AppointmentDAO.deleteAppointment(selectedId);
+                appointmentTableView.getItems().remove(selectedAppointment);
+                appointmentTableView.refresh();
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred. Check your selection and try again.");
+            alert.setContentText("error");
+            alert.showAndWait();
+        }
     }
 
     public void onAddCustClick(ActionEvent actionEvent) throws IOException {
@@ -159,25 +178,58 @@ public class MainDashboardController implements Initializable {
 
     public void onUpdateCustClick(ActionEvent actionEvent) throws IOException, SQLException {
         Customer selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
+        try {
+            Stage stage = (Stage) updateApptButton.getScene().getWindow();
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("update-customer-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root);
+            UpdateCustomerController updateCustomerController = fxmlLoader.getController();
+            updateCustomerController.setCustomerData(selectedCustomer);
 
-        Stage stage = (Stage) updateApptButton.getScene().getWindow();
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("update-customer-view.fxml"));
-        Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root);
-        UpdateCustomerController updateCustomerController = fxmlLoader.getController();
-        updateCustomerController.setCustomerData(selectedCustomer);
-
-        stage.setTitle("Appointment Management System - Update a Customer");
-        stage.setScene(scene);
-        stage.show();
+            stage.setTitle("Appointment Management System - Update a Customer");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred. Check your selection and try again.");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     public void onDeleteCustClick(ActionEvent actionEvent) throws SQLException {
         Customer selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
-        long selectedId = selectedCustomer.getId();
-        CustomerDAO.deleteCustomer(selectedId);
-        customerTableView.getItems().remove(selectedCustomer);
-        customerTableView.refresh();
+        try {
+            long selectedId = selectedCustomer.getId();
+            List<Appointment> customerAppointments = AppointmentDAO.getAppointmentsByCustomerID(selectedId);
+            if (customerAppointments.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Confirm Action");
+                alert.setHeaderText("Are You Sure?");
+                alert.setContentText("Once you delete an appointment this action can't be undone!");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    CustomerDAO.deleteCustomer(selectedId);
+                    customerTableView.getItems().remove(selectedCustomer);
+                    customerTableView.refresh();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setAlertType(Alert.AlertType.INFORMATION);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("This customer still has upcoming appointments");
+                alert.setContentText("Customers can only be deleted when their appointment is complete");
+                alert.showAndWait();
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred. Check your selection and try again.");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     public void signOutClick(ActionEvent actionEvent) throws IOException {
@@ -202,7 +254,6 @@ public class MainDashboardController implements Initializable {
     }
 
     public void filterByMonth(ObservableList<Appointment> appointments) throws SQLException {
-
     }
 
     public void filterAppointments() throws SQLException {
