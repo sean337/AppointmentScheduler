@@ -84,7 +84,7 @@ public class WelcomeController implements Initializable {
                         && appointment.getStart().isBefore(LocalDateTime.now().plusMinutes(15))).toList();
         if (!upcomingAppointments.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("REMINDER!");
+            alert.setTitle("REMINDER!!!");
             alert.setHeaderText("Appointment Starting Soon");
             alert.setContentText("You have " + upcomingAppointments.size() + " appointments in the next 15 minutes");
             alert.showAndWait();

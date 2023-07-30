@@ -10,6 +10,7 @@ import com.seanmlee.c195.appointmentscheduler.model.Contact;
 import com.seanmlee.c195.appointmentscheduler.model.Customer;
 import com.seanmlee.c195.appointmentscheduler.model.User;
 import com.seanmlee.c195.appointmentscheduler.util.DateTimeUtil;
+import com.seanmlee.c195.appointmentscheduler.util.FormValidator;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,10 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -31,7 +29,9 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 public class AddAppointmentController implements Initializable {
 
@@ -72,47 +72,70 @@ public class AddAppointmentController implements Initializable {
 
     public void onSaveApptButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
 
-        String currentUserName = UserDAO.getLoggedInUserName();
-        LocalDateTime currentLocalDateTime = LocalDateTime.now();
-        Contact selectedContact = (Contact) apptContactComboBox.getValue();
-        Customer selectedCustomer = (Customer) apptCustomerComboBox.getValue();
-        User selectedUser = (User) apptUserComboBox.getValue();
 
+        boolean result = FormValidator.emptyAppointmentFieldCheck(apptTitleTextField, apptDescriptionTextField,
+                apptTypeTextField, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
+                apptStartTimeComboBox, apptEndTimeComboBox, apptCustomerComboBox, apptUserComboBox,
+                apptContactComboBox);
 
+        if (result) {
+            FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out" +
+                    "to schedule an appointment");
+            return;
+        }
+            String currentUserName = UserDAO.getLoggedInUserName();
+            LocalDateTime currentLocalDateTime = LocalDateTime.now();
+            Contact selectedContact = (Contact) apptContactComboBox.getValue();
+            Customer selectedCustomer = (Customer) apptCustomerComboBox.getValue();
+            User selectedUser = (User) apptUserComboBox.getValue();
+            String title = apptTitleTextField.getText();
+            String type = apptTypeTextField.getText();
+            String description = apptDescriptionTextField.getText();
+            String location = apptLocationTextField.getText();
+            String createdBy = currentUserName;
+            String lastUpdatedBy = currentUserName;
+            LocalDateTime start = DateTimeUtil.parseDateTime(apptStartDatePicker, apptStartTimeComboBox);
+            LocalDateTime end = DateTimeUtil.parseDateTime(apptEndDatePicker, apptEndTimeComboBox);
+            long userId = selectedUser.getId();
+            long contactId = selectedContact.getId();
+            long customerId = selectedCustomer.getId();
 
-        String title = apptTitleTextField.getText();
-        String type = apptTypeTextField.getText();
-        String description = apptDescriptionTextField.getText();
-        String location = apptLocationTextField.getText();
-        String createdBy = currentUserName;
-        String lastUpdatedBy = currentUserName;
-        LocalDateTime start = DateTimeUtil.parseDateTime(apptStartDatePicker, apptStartTimeComboBox);
-        LocalDateTime end = DateTimeUtil.parseDateTime(apptEndDatePicker, apptEndTimeComboBox);
-        long userId = selectedUser.getId();
-        long contactId = selectedContact.getId();
-        long customerId = selectedCustomer.getId();
+            boolean startCheck = FormValidator.startDateCheck(start);
+            boolean endCheck = FormValidator.endDateCheck(start, end);
+            boolean overlapCheck = FormValidator.appointmentOverlaps(customerId, userId,
+                    start, end);
 
-        Appointment appointment = new Appointment(title,description,location,type,start,end, currentLocalDateTime,
-                LocalDateTime.now(),createdBy,lastUpdatedBy, customerId, userId,
-                contactId);
+            if (endCheck){
+                FormValidator.showAlert("Warning", "Invalid Selection", "Your end date " +
+                        "is before your start date");
+            } else if (startCheck){
+                FormValidator.showAlert("Warning", "Invalid Selection", "Your appointment Start " +
+                        "must begin after the current date and time");
+            } else if (overlapCheck){
+                FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected user or " +
+                        "customer has overlapping appointments for the date and time selected.");
+            } else {
+                Appointment appointment = new Appointment(title, description, location, type, start, end, currentLocalDateTime,
+                        LocalDateTime.now(), createdBy, lastUpdatedBy, customerId, userId,
+                        contactId);
+                AppointmentDAO.createAppointment(appointment);
 
-        AppointmentDAO.createAppointment(appointment);
+                //Set new window
+                Stage stage = (Stage) saveApptButton.getScene().getWindow();
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
+                Parent root = fxmlLoader.load();
+                Scene scene = new Scene(root, 1191, 670);
 
-        //Set new window
-        Stage stage = (Stage) saveApptButton.getScene().getWindow();
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
-        Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root, 1191, 670);
+                MainDashboardController mainDashboardController = fxmlLoader.getController();
+                List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(userId);
+                mainDashboardController.refreshAppointmentTable(userAppointmentList);
+                mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
 
-        MainDashboardController mainDashboardController = fxmlLoader.getController();
-        List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(userId);
-        mainDashboardController.refreshAppointmentTable(userAppointmentList);
-        mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
+                stage.setTitle("Appointment Management System - Your Appointments");
+                stage.setScene(scene);
+                stage.show();
 
-        stage.setTitle("Appointment Management System - Your Appointments");
-        stage.setScene(scene);
-        stage.show();
-
+            }
     }
 
     public void onCancelApptButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
