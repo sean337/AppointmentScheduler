@@ -6,6 +6,7 @@ import com.seanmlee.c195.appointmentscheduler.model.Appointment;
 import com.seanmlee.c195.appointmentscheduler.model.Country;
 import com.seanmlee.c195.appointmentscheduler.model.Customer;
 import com.seanmlee.c195.appointmentscheduler.model.FirstLevelDivision;
+import com.seanmlee.c195.appointmentscheduler.util.FormValidator;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -87,6 +88,13 @@ public class UpdateCustomerController implements Initializable {
     }
 
         public void onSaveClick (ActionEvent actionEvent) throws SQLException, IOException {
+            boolean result = FormValidator.emptyCustomerFieldCheck(nameTextField, addressTextField, phoneTextField, postalCodeTextField,
+                    countrySelector, stateSelector);
+
+            if (result) {
+                FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out");
+                return;
+            }
             long userId = UserSession.getInstance().getUserId();
             String currentUserName = UserDAO.getLoggedInUserName();
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());

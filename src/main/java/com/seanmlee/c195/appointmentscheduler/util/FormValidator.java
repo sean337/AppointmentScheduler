@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FormValidator {
@@ -23,14 +24,18 @@ public class FormValidator {
                                                      TextField location, DatePicker startDay, DatePicker endDay,
                                                      ComboBox startTime, ComboBox endTime, ComboBox customer,
                                                      ComboBox user, ComboBox contact) {
+
         return Stream.of(title.getText(), description.getText(), type.getText(), location.getText(), startDay.getValue(),
                 endDay.getValue(), startTime.getValue(), endTime.getValue(), customer.getValue(), user.getValue(),
-                contact.getValue()).anyMatch(Objects::isNull);
+                contact.getValue()).anyMatch(Objects::isNull) || Stream.of(title.getText(), description.getText(),
+                type.getText(), location.getText()).anyMatch(String::isEmpty);
+
     }
     public static boolean emptyCustomerFieldCheck(TextField name, TextField address, TextField phone, TextField postalCode,
                                                   ComboBox country, ComboBox state) {
         return Stream.of(name.getText(), address.getText(), phone.getText(), postalCode.getText(), country.getValue(),
-                state.getValue()).anyMatch(Objects::isNull);
+                state.getValue()).anyMatch(Objects::isNull) || Stream.of(name.getText(), address.getText(), phone.getText(),
+                postalCode.getText()).anyMatch(String::isEmpty);
 
     }
 
@@ -40,6 +45,19 @@ public class FormValidator {
 
     public static boolean endDateCheck(LocalDateTime startDay, LocalDateTime endDay){
         return endDay.isBefore(startDay);
+    }
+
+    public static boolean appointmentOverlaps(long customerId, long userId, LocalDateTime start, LocalDateTime end,
+                                              Long appointmentId) throws SQLException {
+        List<Appointment> existingAppointments = AppointmentDAO.getAppointments(userId);
+        existingAppointments.addAll(AppointmentDAO.getAppointmentsByCustomerID(customerId));
+        for (Appointment appointment : existingAppointments) {
+            if (start.isBefore(appointment.getEnd()) && end.isAfter(appointment.getStart()) &&
+                    appointment.getId() != appointmentId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean appointmentOverlaps(long customerId, long userId, LocalDateTime start, LocalDateTime end) throws SQLException {
