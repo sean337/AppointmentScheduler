@@ -27,10 +27,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.Month;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class ReportsController implements Initializable {
 
+    List<FirstLevelDivision> divisionsList = FirstLevelDivisionDAO.getFirstLevelDivision();
     @FXML
     private TableColumn appointmentType;
     @FXML
@@ -75,22 +79,14 @@ public class ReportsController implements Initializable {
     private TableColumn totalCustomers;
     @FXML
     private Button backButton;
-
     private Contact selectedContact;
-
+    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
+    private final HashMap<String, Report> monthlyReportMap = new HashMap<String, Report>();
+    private final HashMap<String, Report> divisionReportMap = new HashMap<>();
     private List<Appointment> appointments;
-
-    private ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
-    private ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
-
-    private ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
-
-    private ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
-    private HashMap<String, Report> monthlyReportMap = new HashMap<String, Report>();
-
-    private HashMap<String, Report> divisionReportMap = new HashMap<>();
-
-    List<FirstLevelDivision> divisionsList = FirstLevelDivisionDAO.getFirstLevelDivision();
 
     public ReportsController() throws SQLException {
     }
@@ -103,7 +99,8 @@ public class ReportsController implements Initializable {
     }
 
     /**
-     *  Goes back to the welcome controller
+     * Goes back to the welcome controller
+     *
      * @param actionEvent
      * @throws IOException
      */
@@ -122,6 +119,7 @@ public class ReportsController implements Initializable {
 
     /**
      * Signs out of the current user, clears the session instance and loads the login page again
+     *
      * @param actionEvent
      * @throws IOException
      */
@@ -137,6 +135,7 @@ public class ReportsController implements Initializable {
 
     /**
      * Method runs as soon as the class is called to update changes in the tables
+     *
      * @param url
      * @param resourceBundle
      */

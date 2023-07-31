@@ -3,7 +3,10 @@ package com.seanmlee.c195.appointmentscheduler.controller;
 import com.seanmlee.c195.appointmentscheduler.Main;
 import com.seanmlee.c195.appointmentscheduler.dao.UserDAO;
 import com.seanmlee.c195.appointmentscheduler.model.User;
+import com.seanmlee.c195.appointmentscheduler.util.UserLogger;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -21,7 +24,16 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * Handles the login screen
+ */
 public class LoginController implements Initializable {
+
+    private final ObservableList<String> languagesInEnglish = FXCollections.observableArrayList("English", "French");
+    private final ObservableList<String> languageNamesInFrench = FXCollections.observableArrayList("Anglais", "Français");
+
+    @FXML private ComboBox<String> languageSelector;
+    @FXML private Text languageLabel;
     @FXML
     private TextField userNameInputField;
     @FXML
@@ -40,16 +52,13 @@ public class LoginController implements Initializable {
     private Text languageSettingLabel;
     @FXML
     private Text timeZoneLabel;
-    @FXML
-    private ChoiceBox<String> languageSelectorBox;
-    private final String[] languages = {"English", "French"};
 
-
+    private ResourceBundle rb;
     /**
      * This Method is called when the Login button is clicked.
-     *  It takes the user input from the username and password text fields, validates the user exists,
-     *  creates a session instance for that user and displays the welcome controller.
-     *  If the validation fails it displays an error message
+     * It takes the user input from the username and password text fields, validates the user exists,
+     * creates a session instance for that user and displays the welcome controller.
+     * If the validation fails it displays an error message
      *
      * @param mouseEvent
      * @throws SQLException
@@ -58,16 +67,18 @@ public class LoginController implements Initializable {
     public void onClickLoginButton(MouseEvent mouseEvent) throws SQLException, IOException {
         String username = userNameInputField.getText();
         String password = passwordInputField.getText();
-        User validatedUser = UserDAO.validateUser(username,password);
+        User validatedUser = UserDAO.validateUser(username, password);
         //Starting new UserSession instance
         if (validatedUser == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Invalid User");
-            alert.setContentText("This username and password can't be found");
+            alert.setTitle(rb.getString("invalidUserTitle"));
+            alert.setContentText(rb.getString("invalidUserContent"));
+            alert.setHeaderText(rb.getString("invalidUserHeader"));
             alert.showAndWait();
             return;
         }
         UserSession.getInstance(validatedUser.getId(), validatedUser.getUserName());
+        UserLogger.stampUserLogin(username);
         //Set new window
         Stage stage = (Stage) loginButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("welcome-view.fxml"));
@@ -87,19 +98,13 @@ public class LoginController implements Initializable {
         passwordInputField.clear();
     }
 
+    public void noUserFoundAlert() {
 
-    public void updateLanguage(ResourceBundle resourceBundle) {
-        if (languageSelectorBox.valueProperty().equals("French")){
-            System.out.println("French!");
-        }
     }
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        Locale locale = Locale.getDefault();
 
-        rb = ResourceBundle.getBundle("i18n/login", Locale.getDefault());
-        languageSelectorBox.getItems().addAll(languages);
-        languageSelectorBox.setValue("English");
+
+    public void updateLanguage(String language) {
+        rb = ResourceBundle.getBundle("i18n/login", new Locale(language.equals("French") ? "fr" : "en"));
 
         userNameLabel.setText(rb.getString("userNameLabel"));
         passwordLabel.setText(rb.getString("passwordLabel"));
@@ -107,8 +112,29 @@ public class LoginController implements Initializable {
         loginButton.setText(rb.getString("loginButtonLabel"));
         clearFormButton.setText(rb.getString("clearFormButtonLabel"));
         ZoneId zoneId = ZoneId.systemDefault();
-        timeZoneLabel.setText("Time Zone: " + zoneId.toString());
-        //updateLanguage(rb);
+        timeZoneLabel.setText(rb.getString("timeZoneLabel") + " : " + zoneId.toString());
+        pageHeaderLabel.setText(rb.getString("pageHeaderLabel"));
+
+
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        languageSelector.setItems(languagesInEnglish);
+        //ZoneId zoneId = ZoneId.systemDefault();
+        //timeZoneLabel.setText(rb.getString("timeZoneLabel") + " : " + zoneId.toString());
+        Locale defaultLocale = Locale.getDefault();
+        if (defaultLocale.getLanguage().equals("fr")){
+            languageSelector.setValue("Français");
+            updateLanguage("French");
+        } else {
+            languageSelector.setValue("English");
+            updateLanguage("English");
+        }
+
+        languageSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            updateLanguage(newValue);
+        });
     }
 
 
