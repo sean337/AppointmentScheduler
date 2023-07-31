@@ -2,6 +2,11 @@ package com.seanmlee.c195.appointmentscheduler.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Appointment object
+ *
+ * @author Sean Lee
+ */
 public class Appointment {
 
     private long id;

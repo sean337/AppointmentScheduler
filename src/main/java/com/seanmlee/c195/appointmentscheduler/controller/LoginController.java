@@ -12,7 +12,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -25,7 +28,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Handles the login screen
+ * Handles the login screen and user validation
+ * @author Sean lee
  */
 public class LoginController implements Initializable {
 
@@ -93,6 +97,10 @@ public class LoginController implements Initializable {
 
     }
 
+    /**
+     * Clears the form
+     * @param mouseEvent
+     */
     public void onClickClearFormButton(MouseEvent mouseEvent) {
         userNameInputField.clear();
         passwordInputField.clear();
@@ -103,6 +111,10 @@ public class LoginController implements Initializable {
     }
 
 
+    /**
+     * Updates the language settings properly based on the resource bundle
+     * @param language
+     */
     public void updateLanguage(String language) {
         rb = ResourceBundle.getBundle("i18n/login", new Locale(language.equals("French") ? "fr" : "en"));
 
@@ -112,17 +124,20 @@ public class LoginController implements Initializable {
         loginButton.setText(rb.getString("loginButtonLabel"));
         clearFormButton.setText(rb.getString("clearFormButtonLabel"));
         ZoneId zoneId = ZoneId.systemDefault();
-        timeZoneLabel.setText(rb.getString("timeZoneLabel") + " : " + zoneId.toString());
+        timeZoneLabel.setText(rb.getString("timeZoneLabel") + " : " + zoneId);
         pageHeaderLabel.setText(rb.getString("pageHeaderLabel"));
 
 
     }
 
+    /**
+     * Sets the scene data properly
+     * @param url
+     * @param rb
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         languageSelector.setItems(languagesInEnglish);
-        //ZoneId zoneId = ZoneId.systemDefault();
-        //timeZoneLabel.setText(rb.getString("timeZoneLabel") + " : " + zoneId.toString());
         Locale defaultLocale = Locale.getDefault();
         if (defaultLocale.getLanguage().equals("fr")){
             languageSelector.setValue("Français");

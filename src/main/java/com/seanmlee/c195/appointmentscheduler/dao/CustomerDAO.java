@@ -10,8 +10,19 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides customer access to the database
+ *
+ * @author Sean Lee
+ */
 public class CustomerDAO {
 
+    /**
+     * Returns a list of all customers in the database
+     *
+     * @return
+     * @throws SQLException
+     */
     public static List<Customer> getCustomers() throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.customers";
@@ -43,6 +54,13 @@ public class CustomerDAO {
     }
 
 
+    /**
+     * Deletes a customer from the database
+     *
+     * @param customerId
+     * @return
+     * @throws SQLException
+     */
     public static int deleteCustomer(long customerId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "DELETE FROM client_schedule.customers WHERE Customer_ID=?";
@@ -53,6 +71,12 @@ public class CustomerDAO {
         return result;
     }
 
+    /**
+     * Adds a customer to the database
+     *
+     * @param customer
+     * @throws SQLException
+     */
     public static void createCustomer(Customer customer) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "INSERT INTO client_schedule.customers" +
@@ -72,6 +96,12 @@ public class CustomerDAO {
         DBConnection.closeConnection();
     }
 
+    /**
+     * Updates a customer in the database
+     *
+     * @param customer
+     * @throws SQLException
+     */
     public static void updateCustomer(Customer customer) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "UPDATE client_schedule.customers " +
@@ -99,6 +129,13 @@ public class CustomerDAO {
         preparedStatement.executeUpdate();
     }
 
+    /**
+     * Finds a customer in the database by ID
+     *
+     * @param customerId
+     * @return
+     * @throws SQLException
+     */
     public static Customer findCustomer(long customerId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.customers WHERE Customer_ID = ?";
@@ -126,4 +163,4 @@ public class CustomerDAO {
     }
 
 
-    }
+}

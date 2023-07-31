@@ -1,20 +1,28 @@
 package com.seanmlee.c195.appointmentscheduler.dao;
 
 import com.seanmlee.c195.appointmentscheduler.model.Country;
-import com.seanmlee.c195.appointmentscheduler.model.Customer;
 import com.seanmlee.c195.appointmentscheduler.util.DBConnection;
-import javafx.collections.ObservableList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides country access in the Database
+ *
+ * @author Sean Lee
+ */
 public class CountryDAO {
 
+    /**
+     * Returns a list of countries
+     *
+     * @return
+     * @throws SQLException
+     */
     public static List<Country> getCountries() throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.countries";
@@ -30,7 +38,7 @@ public class CountryDAO {
                 String createdBy = resultSet.getString("Created_By");
                 String lastUpdatedBy = resultSet.getString("Last_Updated_By");
 
-                Country country = new Country(countryId, countryName, dateCreated.toLocalDateTime(),lastUpdated.toLocalDateTime(),createdBy,lastUpdatedBy);
+                Country country = new Country(countryId, countryName, dateCreated.toLocalDateTime(), lastUpdated.toLocalDateTime(), createdBy, lastUpdatedBy);
                 countries.add(country);
             }
         } catch (SQLException e) {
@@ -40,6 +48,13 @@ public class CountryDAO {
         return countries;
     }
 
+    /**
+     * Returns a country based on a division name
+     *
+     * @param divisionName
+     * @return
+     * @throws SQLException
+     */
     public static String getCountryNameByDivisionName(String divisionName) throws SQLException {
         DBConnection.openConnection();
         String countryName = " ";

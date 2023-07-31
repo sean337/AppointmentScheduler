@@ -35,54 +35,91 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Class handles updating a customer record
+ *
+ * @author Sean Lee
+ */
 public class UpdateAppointmentController implements Initializable {
 
 
-    @FXML private ComboBox apptTypeComboBox;
-    @FXML private Text updateAppointmentTitle;
-    @FXML private Text apptTitleLabel;
-    @FXML private TextField apptTitleTextField;
-    @FXML private Text appTypetLabel;
-    @FXML private Text apptDescriptionLabel;
-    @FXML private TextField apptDescriptionTextField;
-    @FXML private Text apptLocationLabel;
-    @FXML private TextField apptLocationTextField;
-    @FXML private Button saveModdedApptButton;
-    @FXML private Button cancelChangesButton;
-    @FXML private Text apptStartDateLabel;
-    @FXML private DatePicker apptStartDatePicker;
-    @FXML private Text apptEndDateLabel;
-    @FXML private DatePicker apptEndDatePicker;
-    @FXML private Text apptStartTimeLabel;
-    @FXML private ComboBox apptStartTimeComboBox;
-    @FXML private Text timeFormatLabel1;
-    @FXML private Text apptEndTimeLabel;
-    @FXML private ComboBox apptEndTimeComboBox;
-    @FXML private Text apptCustIdLabel;
-    @FXML private Text timeFormatLabel2;
-    @FXML private ComboBox apptCustomerComboBox;
-    @FXML private Text apptUserIdLabel;
-    @FXML private ComboBox apptUserComboBox;
-    @FXML private Text apptContactLabel;
-    @FXML private ComboBox apptContactComboBox;
-
-    private ObservableList<String> appointmentTypes = FXCollections.observableArrayList();
-    private ObservableList<Contact> contacts = FXCollections.observableArrayList();
-    private ObservableList<Customer> customers = FXCollections.observableArrayList();
-    private ObservableList<User> users = FXCollections.observableArrayList();
+    private final ObservableList<String> appointmentTypes = FXCollections.observableArrayList();
+    private final ObservableList<Contact> contacts = FXCollections.observableArrayList();
+    private final ObservableList<Customer> customers = FXCollections.observableArrayList();
+    private final ObservableList<User> users = FXCollections.observableArrayList();
+    @FXML
+    private ComboBox apptTypeComboBox;
+    @FXML
+    private Text updateAppointmentTitle;
+    @FXML
+    private Text apptTitleLabel;
+    @FXML
+    private TextField apptTitleTextField;
+    @FXML
+    private Text appTypetLabel;
+    @FXML
+    private Text apptDescriptionLabel;
+    @FXML
+    private TextField apptDescriptionTextField;
+    @FXML
+    private Text apptLocationLabel;
+    @FXML
+    private TextField apptLocationTextField;
+    @FXML
+    private Button saveModdedApptButton;
+    @FXML
+    private Button cancelChangesButton;
+    @FXML
+    private Text apptStartDateLabel;
+    @FXML
+    private DatePicker apptStartDatePicker;
+    @FXML
+    private Text apptEndDateLabel;
+    @FXML
+    private DatePicker apptEndDatePicker;
+    @FXML
+    private Text apptStartTimeLabel;
+    @FXML
+    private ComboBox apptStartTimeComboBox;
+    @FXML
+    private Text timeFormatLabel1;
+    @FXML
+    private Text apptEndTimeLabel;
+    @FXML
+    private ComboBox apptEndTimeComboBox;
+    @FXML
+    private Text apptCustIdLabel;
+    @FXML
+    private Text timeFormatLabel2;
+    @FXML
+    private ComboBox apptCustomerComboBox;
+    @FXML
+    private Text apptUserIdLabel;
+    @FXML
+    private ComboBox apptUserComboBox;
+    @FXML
+    private Text apptContactLabel;
+    @FXML
+    private ComboBox apptContactComboBox;
     private Appointment selectedAppointment;
 
-    @Override @FXML
+    /**
+     * sets combo boxes with appropriate pre populated data
+     *
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    @FXML
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try{
+        try {
             contacts.addAll(ContactDAO.getContacts());
             customers.addAll(CustomerDAO.getCustomers());
             users.addAll(UserDAO.getUsers());
             apptContactComboBox.setItems(contacts);
             apptUserComboBox.setItems(users);
             apptCustomerComboBox.setItems(customers);
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         apptStartTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
@@ -92,6 +129,11 @@ public class UpdateAppointmentController implements Initializable {
 
     }
 
+    /**
+     * Populates the combo boxes with the selected appointment data
+     *
+     * @param appointment
+     */
     public void setAppointmentData(Appointment appointment) {
         selectedAppointment = appointment;
         apptTitleTextField.setText(appointment.getTitle());
@@ -129,6 +171,13 @@ public class UpdateAppointmentController implements Initializable {
 
     }
 
+    /**
+     * Updates the customer in the database and returns to the main dashboard
+     *
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
     public void onSaveModsButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
         boolean result = FormValidator.emptyAppointmentFieldCheck(apptTitleTextField, apptDescriptionTextField,
                 apptTypeComboBox, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
@@ -140,61 +189,68 @@ public class UpdateAppointmentController implements Initializable {
                     " to schedule an appointment");
             return;
         }
-            String title = apptTitleTextField.getText();
-            String type = (String) apptTypeComboBox.getValue();
-            String description = apptDescriptionTextField.getText();
-            String location = apptLocationTextField.getText();
-            LocalDateTime start = DateTimeUtil.parseDateTime(apptStartDatePicker, apptStartTimeComboBox);
-            LocalDateTime end = DateTimeUtil.parseDateTime(apptEndDatePicker, apptEndTimeComboBox);
-            LocalDateTime createDate = selectedAppointment.getCreateDate();
-            String createdBy = selectedAppointment.getCreatedBy();
-            String lastUpdatedBy = UserDAO.getLoggedInUserName();
-            Contact selectedContact = (Contact) apptContactComboBox.getValue();
-            Customer selectedCustomer = (Customer) apptCustomerComboBox.getValue();
-            User selectedUser = (User) apptUserComboBox.getValue();
-            long customerId = selectedCustomer.getId();
-            long userId = selectedUser.getId();
-            long contactId = selectedContact.getId();
+        String title = apptTitleTextField.getText();
+        String type = (String) apptTypeComboBox.getValue();
+        String description = apptDescriptionTextField.getText();
+        String location = apptLocationTextField.getText();
+        LocalDateTime start = DateTimeUtil.parseDateTime(apptStartDatePicker, apptStartTimeComboBox);
+        LocalDateTime end = DateTimeUtil.parseDateTime(apptEndDatePicker, apptEndTimeComboBox);
+        LocalDateTime createDate = selectedAppointment.getCreateDate();
+        String createdBy = selectedAppointment.getCreatedBy();
+        String lastUpdatedBy = UserDAO.getLoggedInUserName();
+        Contact selectedContact = (Contact) apptContactComboBox.getValue();
+        Customer selectedCustomer = (Customer) apptCustomerComboBox.getValue();
+        User selectedUser = (User) apptUserComboBox.getValue();
+        long customerId = selectedCustomer.getId();
+        long userId = selectedUser.getId();
+        long contactId = selectedContact.getId();
 
-            boolean startCheck = FormValidator.startDateCheck(start);
-            boolean endCheck = FormValidator.endDateCheck(start, end);
-            boolean overlapCheck = FormValidator.appointmentOverlaps(customerId, userId,
-                    start, end, selectedAppointment.getId());
+        boolean startCheck = FormValidator.startDateCheck(start);
+        boolean endCheck = FormValidator.endDateCheck(start, end);
+        boolean overlapCheck = FormValidator.appointmentOverlaps(customerId, userId,
+                start, end, selectedAppointment.getId());
 
-            if (endCheck) {
-                FormValidator.showAlert("Warning", "Invalid Selection", "Your end date " +
-                        "is before your start date");
-            } else if (startCheck) {
-                FormValidator.showAlert("Warning", "Invalid Selection", "Your appointment Start " +
-                        "must begin after the current date and time");
-            } else if (overlapCheck) {
-                FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected user or " +
-                        "customer has overlapping appointments for the date and time selected.");
-            } else {
-                Appointment appointment = new Appointment(title, description, location, type, start, end, createDate,
-                        LocalDateTime.now(), createdBy, lastUpdatedBy, customerId, userId,
-                        contactId);
-                appointment.setId(selectedAppointment.getId());
+        if (endCheck) {
+            FormValidator.showAlert("Warning", "Invalid Selection", "Your end date " +
+                    "is before your start date");
+        } else if (startCheck) {
+            FormValidator.showAlert("Warning", "Invalid Selection", "Your appointment Start " +
+                    "must begin after the current date and time");
+        } else if (overlapCheck) {
+            FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected user or " +
+                    "customer has overlapping appointments for the date and time selected.");
+        } else {
+            Appointment appointment = new Appointment(title, description, location, type, start, end, createDate,
+                    LocalDateTime.now(), createdBy, lastUpdatedBy, customerId, userId,
+                    contactId);
+            appointment.setId(selectedAppointment.getId());
 
-                AppointmentDAO.updateAppointment(appointment);
+            AppointmentDAO.updateAppointment(appointment);
 
-                Stage stage = (Stage) saveModdedApptButton.getScene().getWindow();
-                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
-                Parent root = fxmlLoader.load();
-                Scene scene = new Scene(root, 1191, 670);
+            Stage stage = (Stage) saveModdedApptButton.getScene().getWindow();
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root, 1191, 670);
 
-                MainDashboardController mainDashboardController = fxmlLoader.getController();
-                List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
-                mainDashboardController.refreshAppointmentTable(userAppointmentList);
-                mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
-                stage.setTitle("Appointment Management System - Your Appointments");
-                stage.setScene(scene);
-                stage.show();
-            }
-
+            MainDashboardController mainDashboardController = fxmlLoader.getController();
+            List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
+            mainDashboardController.refreshAppointmentTable(userAppointmentList);
+            mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
+            stage.setTitle("Appointment Management System - Your Appointments");
+            stage.setScene(scene);
+            stage.show();
         }
 
+    }
 
+
+    /**
+     * Returns to the main dashboard without making any updates
+     *
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
     public void onCancelChangesButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
         Stage stage = (Stage) cancelChangesButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
@@ -212,7 +268,6 @@ public class UpdateAppointmentController implements Initializable {
         stage.setScene(scene);
         stage.show();
     }
-
 
 
 }

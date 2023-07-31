@@ -6,18 +6,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
-import org.w3c.dom.Text;
 
-import java.security.Timestamp;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Handles the exceptions for each form that might get filled out
+ *
+ * @author Sean Lee
+ */
 public class FormValidator {
 
     public static boolean emptyAppointmentFieldCheck(TextField title, TextField description, ComboBox type,
@@ -31,6 +32,7 @@ public class FormValidator {
                 location.getText()).anyMatch(String::isEmpty);
 
     }
+
     public static boolean emptyCustomerFieldCheck(TextField name, TextField address, TextField phone, TextField postalCode,
                                                   ComboBox country, ComboBox state) {
         return Stream.of(name.getText(), address.getText(), phone.getText(), postalCode.getText(), country.getValue(),
@@ -39,11 +41,11 @@ public class FormValidator {
 
     }
 
-    public static boolean startDateCheck(LocalDateTime startDay){
+    public static boolean startDateCheck(LocalDateTime startDay) {
         return startDay.isBefore(ChronoLocalDateTime.from(LocalDateTime.now()));
     }
 
-    public static boolean endDateCheck(LocalDateTime startDay, LocalDateTime endDay){
+    public static boolean endDateCheck(LocalDateTime startDay, LocalDateTime endDay) {
         return endDay.isBefore(startDay);
     }
 
@@ -71,7 +73,7 @@ public class FormValidator {
         return false;
     }
 
-    public static void showAlert(String title, String header, String content){
+    public static void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);

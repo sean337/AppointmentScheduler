@@ -3,7 +3,6 @@ package com.seanmlee.c195.appointmentscheduler.dao;
 import com.seanmlee.c195.appointmentscheduler.model.Contact;
 import com.seanmlee.c195.appointmentscheduler.util.DBConnection;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +10,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides access to contacts in the database
+ *
+ * @author Sean Lee
+ */
 public class ContactDAO {
+
 
     public static List<String> getContactNames() throws SQLException {
         DBConnection.openConnection();
@@ -40,11 +45,17 @@ public class ContactDAO {
         ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             contact = resultSet.getLong("Contact_ID");
-            }
+        }
         DBConnection.closeConnection();
         return contact;
     }
 
+    /**
+     * Returns all contacts
+     *
+     * @return
+     * @throws SQLException
+     */
     public static List<Contact> getContacts() throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.contacts";
@@ -57,7 +68,7 @@ public class ContactDAO {
                 String contactName = resultSet.getString("Contact_Name");
                 String contactEmail = resultSet.getString("Email");
 
-                Contact contact = new Contact(contactId,contactName,contactEmail);
+                Contact contact = new Contact(contactId, contactName, contactEmail);
                 contacts.add(contact);
             }
         } catch (SQLException e) {
@@ -66,7 +77,6 @@ public class ContactDAO {
         DBConnection.closeConnection();
         return contacts;
     }
-
 
 
 }

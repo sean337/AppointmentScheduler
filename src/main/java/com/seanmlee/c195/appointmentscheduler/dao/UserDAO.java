@@ -12,6 +12,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides access to users in the database
+ */
 public class UserDAO {
 
     public UserDAO(Long id, String userName, String password) {
@@ -22,6 +25,14 @@ public class UserDAO {
 
     }
 
+    /**
+     * Validates the user
+     *
+     * @param userNameInput
+     * @param passwordInput
+     * @return
+     * @throws SQLException
+     */
     public static User validateUser(String userNameInput, String passwordInput) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.users WHERE user_name = ? AND password = ?";
@@ -43,7 +54,13 @@ public class UserDAO {
         }
     }
 
-    public static List<User> getUsers() throws  SQLException {
+    /**
+     * Gets a list of all the users
+     *
+     * @return
+     * @throws SQLException
+     */
+    public static List<User> getUsers() throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.users";
         PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);

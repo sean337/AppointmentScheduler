@@ -13,7 +13,6 @@ public class UserLogger {
     private static final Logger logger = Logger.getLogger("UserLog");
 
     static {
-        // This block configures the logger with handler and formatter
         FileHandler fileHandler = null;
         try {
             fileHandler = new FileHandler("user_log.txt");
@@ -26,11 +25,9 @@ public class UserLogger {
     }
 
     public static void stampUserLogin(String userName) throws IOException {
-        // the following statement is used to log any messages
         logger.info(userName + " Signed into the application");
 
     }
-
 
 
 }

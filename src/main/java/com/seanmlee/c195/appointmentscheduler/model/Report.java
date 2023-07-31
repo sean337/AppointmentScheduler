@@ -1,10 +1,12 @@
 package com.seanmlee.c195.appointmentscheduler.model;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 import java.time.Month;
 
+/**
+ * Report Object
+ *
+ * @author Sean Lee
+ */
 public class Report {
     private Month month;
 
@@ -15,15 +17,11 @@ public class Report {
     private FirstLevelDivision division;
     private String divisionName;
 
-    private static int planningCount = 0;
-    private static int debriefingCount = 0;
-    private static int brainstormingCount = 0;
-    private static int progressCount = 0;
-
     public Report(String divisionName, int customerCount) {
         this.customerCount = customerCount;
         this.divisionName = divisionName;
     }
+
     public Report(Customer customer, int customerCount) {
         this.customer = customer;
         this.customerCount = customerCount;
@@ -48,10 +46,6 @@ public class Report {
 
     public FirstLevelDivision getDivision() {
         return this.division;
-    }
-
-    public void setDivisionName(FirstLevelDivision division) {
-        this.division = division;
     }
 
     public Month getMonth() {
@@ -90,14 +84,18 @@ public class Report {
         return divisionName;
     }
 
+    public void setDivisionName(FirstLevelDivision division) {
+        this.division = division;
+    }
 
     public void setDivisionName(String divisionName) {
         this.divisionName = divisionName;
     }
 
-    public void setAppointmentType(String appointmentType) {
-    }
     public String getAppointmentType() {
         return appointmentType;
+    }
+
+    public void setAppointmentType(String appointmentType) {
     }
 }

@@ -23,15 +23,31 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
+/**
+ * Welcome Screen
+ *
+ * @author Sean Lee
+ */
 public class WelcomeController implements Initializable {
-    @FXML private Text welcomeLabel;
-    @FXML private Button viewAppointmentsButton;
-    @FXML private Button viewCustomersButton;
-    @FXML private Button reportsButton;
-    @FXML private Button signOutButton;
+    @FXML
+    private Text welcomeLabel;
+    @FXML
+    private Button viewAppointmentsButton;
+    @FXML
+    private Button viewCustomersButton;
+    @FXML
+    private Button reportsButton;
+    @FXML
+    private Button signOutButton;
 
+    /**
+     * Sends user to the main dashboard
+     *
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
     public void onViewApptButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
         Stage stage = (Stage) viewAppointmentsButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
@@ -46,9 +62,16 @@ public class WelcomeController implements Initializable {
         stage.setTitle("Appointment Management System - Your Appointments");
         stage.setScene(scene);
         stage.show();
-        }
+    }
 
 
+    /**
+     * Sends user to reports dashboard
+     *
+     * @param actionEvent
+     * @throws IOException
+     * @throws SQLException
+     */
     public void onViewReportsButtonClick(ActionEvent actionEvent) throws IOException, SQLException {
         Stage stage = (Stage) reportsButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("reports-view.fxml"));
@@ -61,6 +84,12 @@ public class WelcomeController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Signs out of the current user and returns to the login screen
+     *
+     * @param actionEvent
+     * @throws IOException
+     */
     public void onSignOutButtonClick(ActionEvent actionEvent) throws IOException {
         UserSession.resetInstance();
         Stage stage = (Stage) signOutButton.getScene().getWindow();
@@ -71,6 +100,12 @@ public class WelcomeController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Gathers the appointments and lets user know if they have an appointment in the next 15 minutes
+     *
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         List<Appointment> userAppointmentList = null;

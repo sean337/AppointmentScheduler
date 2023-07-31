@@ -5,16 +5,13 @@ import com.seanmlee.c195.appointmentscheduler.dao.AppointmentDAO;
 import com.seanmlee.c195.appointmentscheduler.dao.CustomerDAO;
 import com.seanmlee.c195.appointmentscheduler.model.Appointment;
 import com.seanmlee.c195.appointmentscheduler.model.Customer;
-import com.seanmlee.c195.appointmentscheduler.util.DateTimeUtil;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -24,7 +21,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -33,12 +29,20 @@ import java.util.ResourceBundle;
 
 public class MainDashboardController implements Initializable {
 
-    @FXML private Button reportsButton;
-    @FXML private Button signOutButton;
-    @FXML private ToggleGroup viewGroup;
-    @FXML private  RadioButton allAppointmentsView;
-    @FXML private RadioButton currentMonthView;
-    @FXML private RadioButton currentWeekView;
+    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Customer> customerObservableList = FXCollections.observableArrayList();
+    @FXML
+    private Button reportsButton;
+    @FXML
+    private Button signOutButton;
+    @FXML
+    private ToggleGroup viewGroup;
+    @FXML
+    private RadioButton allAppointmentsView;
+    @FXML
+    private RadioButton currentMonthView;
+    @FXML
+    private RadioButton currentWeekView;
     @FXML
     private Button addApptButton;
     @FXML
@@ -89,8 +93,12 @@ public class MainDashboardController implements Initializable {
     private TableColumn customerStateColumn;
     @FXML
     private TableColumn customerPostalCodeColumn;
-    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
-    private final ObservableList<Customer> customerObservableList = FXCollections.observableArrayList();
+
+    /**
+     * Clears and sets the Appointment observable list
+     *
+     * @param appointments
+     */
     public void refreshAppointmentTable(List<Appointment> appointments) {
 
         appointmentObservableList.clear();
@@ -98,6 +106,12 @@ public class MainDashboardController implements Initializable {
         appointmentTableView.setItems(appointmentObservableList);
         appointmentTableView.refresh();
     }
+
+    /**
+     * Clears and sets the Customer observable list and table
+     *
+     * @param customer
+     */
     public void refreshCustomerTable(List<Customer> customer) {
 
         customerObservableList.clear();
@@ -198,6 +212,12 @@ public class MainDashboardController implements Initializable {
         }
     }
 
+    /**
+     * Handles deleting customer from the database and refreshing the table
+     *
+     * @param actionEvent
+     * @throws SQLException
+     */
     public void onDeleteCustClick(ActionEvent actionEvent) throws SQLException {
         Customer selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
         try {
@@ -232,6 +252,12 @@ public class MainDashboardController implements Initializable {
         }
     }
 
+    /**
+     * Signs out of the current user and launches the login screen again.
+     *
+     * @param actionEvent
+     * @throws IOException
+     */
     public void signOutClick(ActionEvent actionEvent) throws IOException {
         UserSession.resetInstance();
         Stage stage = (Stage) signOutButton.getScene().getWindow();
@@ -256,24 +282,34 @@ public class MainDashboardController implements Initializable {
     public void filterByMonth(ObservableList<Appointment> appointments) throws SQLException {
     }
 
+    /**
+     * Handles the filtering of the appointments by week, month or all.
+     *
+     * @throws SQLException
+     */
     public void filterAppointments() throws SQLException {
         long userId = UserSession.getInstance().getUserId();
         if (currentMonthView.isSelected()) {
             List<Appointment> nextMonthsAppointments = AppointmentDAO.getAppointmentsByMonth(userId);
             refreshAppointmentTable(nextMonthsAppointments);
-        }
-        else if (currentWeekView.isSelected()) {
+        } else if (currentWeekView.isSelected()) {
             List<Appointment> nextWeeksAppointments = AppointmentDAO.getAppointmentsByWeek(userId);
             refreshAppointmentTable(nextWeeksAppointments);
-        }
-        else if (allAppointmentsView.isSelected()){
+        } else if (allAppointmentsView.isSelected()) {
             List<Appointment> allAppointments = AppointmentDAO.getAppointments(userId);
             refreshAppointmentTable(allAppointments);
         }
     }
 
 
-    @Override @FXML
+    /**
+     * Associates the table with the proper object and attributes
+     *
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    @FXML
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Locale locale = Locale.getDefault();
         ResourceBundle rb = ResourceBundle.getBundle("i18n/login", Locale.getDefault());
@@ -308,8 +344,6 @@ public class MainDashboardController implements Initializable {
                 throw new RuntimeException(e);
             }
         });
-
-
 
 
     }

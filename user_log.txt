@@ -1,2 +1,2 @@
-Jul 31, 2023 1:46:33 PM com.seanmlee.c195.appointmentscheduler.util.UserLogger stampUserLogin
+Jul 31, 2023 4:10:57 PM com.seanmlee.c195.appointmentscheduler.util.UserLogger stampUserLogin
 INFO: test Signed into the application

@@ -1,6 +1,12 @@
 package com.seanmlee.c195.appointmentscheduler.model;
+
 import java.time.LocalDateTime;
 
+/**
+ * Customer Object
+ *
+ * @author Sean lee
+ */
 public class Customer {
 
 
@@ -29,6 +35,7 @@ public class Customer {
         this.lastUpdatedBy = lastUpdatedBy;
         this.divisionId = divisionId;
     }
+
     public Customer(String name, String address, String postalCode,
                     String phoneNumber, LocalDateTime createDate, LocalDateTime lastUpdate, String createdBy,
                     String lastUpdatedBy, long divisionId) {

@@ -32,8 +32,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Handles all the Report tables
+ * @author Sean Lee
+ */
 public class ReportsController implements Initializable {
 
+    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
+    private final ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
+    private final HashMap<String, Report> monthlyReportMap = new HashMap<String, Report>();
+    private final HashMap<String, Report> divisionReportMap = new HashMap<>();
     List<FirstLevelDivision> divisionsList = FirstLevelDivisionDAO.getFirstLevelDivision();
     @FXML
     private TableColumn appointmentType;
@@ -80,17 +90,16 @@ public class ReportsController implements Initializable {
     @FXML
     private Button backButton;
     private Contact selectedContact;
-    private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
-    private final ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
-    private final ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
-    private final ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
-    private final HashMap<String, Report> monthlyReportMap = new HashMap<String, Report>();
-    private final HashMap<String, Report> divisionReportMap = new HashMap<>();
     private List<Appointment> appointments;
 
     public ReportsController() throws SQLException {
     }
 
+    /**
+     * refreshes the appointment table give a list of appointments
+     *
+     * @param appointments
+     */
     public void refreshAppointmentTable(List<Appointment> appointments) {
         appointmentObservableList.clear();
         appointmentObservableList.addAll(appointments);

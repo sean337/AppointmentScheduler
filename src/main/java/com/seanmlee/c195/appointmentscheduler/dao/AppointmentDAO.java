@@ -7,11 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Enables access to the appointments database
+ *
+ * @author Sean Lee
+ */
 public class AppointmentDAO {
 
     public static List<Appointment> getAppointments(long userId) throws SQLException {
@@ -44,14 +48,21 @@ public class AppointmentDAO {
                 Appointment appointment = new Appointment(appointmentId, title, description, location, type, start, end,
                         createDate, lastUpdate, createdBy, lastUpdatedBy, customerId, userIdCol, contactId);
                 appointmentList.add(appointment);
-        }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         DBConnection.closeConnection();
         return appointmentList;
     }
 
+    /**
+     * Returns all appointments in the next 30days
+     *
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
     public static List<Appointment> getAppointmentsByMonth(long userId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.appointments WHERE User_ID = ? AND Start >= ? AND Start < ?";
@@ -60,7 +71,7 @@ public class AppointmentDAO {
 
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime thirtyDaysFromToday = today.plusDays(30);
-        preparedStatement.setTimestamp(2,Timestamp.valueOf(today));
+        preparedStatement.setTimestamp(2, Timestamp.valueOf(today));
         preparedStatement.setTimestamp(3, Timestamp.valueOf(thirtyDaysFromToday));
 
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -96,6 +107,13 @@ public class AppointmentDAO {
         return appointmentList;
     }
 
+    /**
+     * Returns all appointments in the next 7 days
+     *
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
     public static List<Appointment> getAppointmentsByWeek(long userId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.appointments WHERE User_ID = ? AND Start >= ? AND Start < ?";
@@ -104,7 +122,7 @@ public class AppointmentDAO {
 
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime sevenDaysFromToday = today.plusDays(7);
-        preparedStatement.setTimestamp(2,Timestamp.valueOf(today));
+        preparedStatement.setTimestamp(2, Timestamp.valueOf(today));
         preparedStatement.setTimestamp(3, Timestamp.valueOf(sevenDaysFromToday));
 
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -141,6 +159,12 @@ public class AppointmentDAO {
     }
 
 
+    /**
+     * Deletes appointment from database
+     *
+     * @param appointmentId
+     * @throws SQLException
+     */
     public static void deleteAppointment(long appointmentId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "DELETE FROM client_schedule.appointments WHERE Appointment_ID=?";
@@ -150,6 +174,12 @@ public class AppointmentDAO {
         DBConnection.closeConnection();
     }
 
+    /**
+     * Adds appointment to database
+     *
+     * @param appointment
+     * @throws SQLException
+     */
     public static void createAppointment(Appointment appointment) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "INSERT INTO client_schedule.appointments" +
@@ -174,6 +204,12 @@ public class AppointmentDAO {
         DBConnection.closeConnection();
     }
 
+    /**
+     * Updates appointment in database
+     *
+     * @param appointment
+     * @throws SQLException
+     */
     public static void updateAppointment(Appointment appointment) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "UPDATE client_schedule.appointments " +
@@ -206,6 +242,13 @@ public class AppointmentDAO {
         DBConnection.closeConnection();
     }
 
+    /**
+     * Gets all appointments given a certain contact ID
+     *
+     * @param contactId
+     * @return
+     * @throws SQLException
+     */
     public static List<Appointment> getAppointmentByContactId(long contactId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.appointments WHERE Contact_ID = ?";
@@ -244,6 +287,13 @@ public class AppointmentDAO {
         return appointmentList;
     }
 
+    /**
+     * Gets a list of appointments given a particular customer ID
+     *
+     * @param customerId
+     * @return
+     * @throws SQLException
+     */
     public static List<Appointment> getAppointmentsByCustomerID(long customerId) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.appointments WHERE Customer_ID = ?";

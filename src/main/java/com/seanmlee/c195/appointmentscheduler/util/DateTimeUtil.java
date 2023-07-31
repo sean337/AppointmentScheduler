@@ -12,6 +12,11 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Date & Time Utility Handles date and time formatting when parsing data from user inputs
+ *
+ * @author Sean Lee
+ */
 public class DateTimeUtil {
 
 
@@ -32,6 +37,10 @@ public class DateTimeUtil {
     }
 
 
+    /**
+     * Returns a list of time slots for business hours
+     * @return
+     */
     public static ObservableList<String> generateTimeSlots() {
         ObservableList<String> times = FXCollections.observableArrayList();
         for (int hour = 8; hour < 22; hour++) {

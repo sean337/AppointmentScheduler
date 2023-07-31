@@ -19,7 +19,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -32,7 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Handles updating a customer in the database
+ * @author Sean Lee
+ */
 public class UpdateCustomerController implements Initializable {
+    private final ObservableList<String> countryNames = FXCollections.observableArrayList();
+    private final ObservableList<String> firstLevelDivisions = FXCollections.observableArrayList();
     @FXML
     private Text nameLabel;
     @FXML
@@ -61,13 +66,13 @@ public class UpdateCustomerController implements Initializable {
     private Button saveButton;
     @FXML
     private Button cancelButton;
-
     private Customer selectedCustomer;
 
-    private ObservableList<String> countryNames = FXCollections.observableArrayList();
-
-    private ObservableList<String> firstLevelDivisions = FXCollections.observableArrayList();
-
+    /**
+     * setups all the pre-populated data and handles switching the first level divisions
+     * @param url
+     * @param resourceBundle
+     */
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
             for (Country country : CountryDAO.getCountries()) {
@@ -77,7 +82,7 @@ public class UpdateCustomerController implements Initializable {
             throw new RuntimeException(e);
         }
         countrySelector.setItems(countryNames);
-        countrySelector.valueProperty().addListener((observableValue, o, t1) -> {
+        countrySelector.valueProperty().addListener((observableValue, oldDvisions, newDivisions) -> {
             try {
                 firstLevelDivisionSwitch();
             } catch (SQLException e) {
@@ -87,75 +92,97 @@ public class UpdateCustomerController implements Initializable {
 
     }
 
-        public void onSaveClick (ActionEvent actionEvent) throws SQLException, IOException {
-            boolean result = FormValidator.emptyCustomerFieldCheck(nameTextField, addressTextField, phoneTextField, postalCodeTextField,
-                    countrySelector, stateSelector);
+    /**
+     * Saves the updates to the customer in the database
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
+    public void onSaveClick(ActionEvent actionEvent) throws SQLException, IOException {
+        boolean result = FormValidator.emptyCustomerFieldCheck(nameTextField, addressTextField, phoneTextField, postalCodeTextField,
+                countrySelector, stateSelector);
 
-            if (result) {
-                FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out");
-                return;
-            }
-            long userId = UserSession.getInstance().getUserId();
-            String currentUserName = UserDAO.getLoggedInUserName();
-            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-
-            String name = nameTextField.getText();
-            String address = addressTextField.getText();
-            String phone = phoneTextField.getText();
-            String postalCode = postalCodeTextField.getText();
-
-            String divisionName = (String) stateSelector.getSelectionModel().getSelectedItem();
-            long divisionId = FirstLevelDivisionDAO.getDivisionIdByName(divisionName);
-            Customer customer = new Customer(name, address, postalCode, phone, now.toLocalDateTime(), now.toLocalDateTime(),
-                    currentUserName, currentUserName, divisionId);
-            customer.setId(selectedCustomer.getId());
-            CustomerDAO.updateCustomer(customer);
-
-            Stage stage = (Stage) saveButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root, 1191, 670);
-
-            MainDashboardController mainDashboardController = fxmlLoader.getController();
-            List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(userId);
-            mainDashboardController.refreshAppointmentTable(userAppointmentList);
-            mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
-
-            stage.setTitle("Appointment Management System - Your Appointments");
-            stage.setScene(scene);
-            stage.show();
-
+        if (result) {
+            FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out");
+            return;
         }
+        long userId = UserSession.getInstance().getUserId();
+        String currentUserName = UserDAO.getLoggedInUserName();
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
-        public void setCustomerData (Customer customer) throws SQLException {
-            selectedCustomer = customer;
-            nameTextField.setText(customer.getName());
-            addressTextField.setText(customer.getAddress());
-            phoneTextField.setText(customer.getPhoneNumber());
-            String divisionName = FirstLevelDivisionDAO.getDivisionNameById(customer.getDivisionId());
-            System.out.println(divisionName);
-            String countryName = CountryDAO.getCountryNameByDivisionName(divisionName);
-            countrySelector.setValue(countryName);
-            stateSelector.setValue(divisionName);
-            postalCodeTextField.setText(customer.getPostalCode());
-        }
+        String name = nameTextField.getText();
+        String address = addressTextField.getText();
+        String phone = phoneTextField.getText();
+        String postalCode = postalCodeTextField.getText();
 
-        public void onCancelClick (ActionEvent actionEvent) throws SQLException, IOException {
-            Stage stage = (Stage) cancelButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root);
+        String divisionName = (String) stateSelector.getSelectionModel().getSelectedItem();
+        long divisionId = FirstLevelDivisionDAO.getDivisionIdByName(divisionName);
+        Customer customer = new Customer(name, address, postalCode, phone, now.toLocalDateTime(), now.toLocalDateTime(),
+                currentUserName, currentUserName, divisionId);
+        customer.setId(selectedCustomer.getId());
+        CustomerDAO.updateCustomer(customer);
 
-            MainDashboardController mainDashboardController = fxmlLoader.getController();
-            long userId = UserSession.getInstance().getUserId();
-            List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
-            List<Customer> allCustomersList = CustomerDAO.getCustomers();
-            mainDashboardController.refreshAppointmentTable(userAppointmentList);
-            mainDashboardController.refreshCustomerTable(allCustomersList);
-            stage.setTitle("Appointment Management System - Your Appointments");
-            stage.setScene(scene);
-            stage.show();
-        }
+        Stage stage = (Stage) saveButton.getScene().getWindow();
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, 1191, 670);
+
+        MainDashboardController mainDashboardController = fxmlLoader.getController();
+        List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(userId);
+        mainDashboardController.refreshAppointmentTable(userAppointmentList);
+        mainDashboardController.refreshCustomerTable(CustomerDAO.getCustomers());
+
+        stage.setTitle("Appointment Management System - Your Appointments");
+        stage.setScene(scene);
+        stage.show();
+
+    }
+
+    /**
+     * Sets the fields with all the selected customer's data
+     * @param customer
+     * @throws SQLException
+     */
+    public void setCustomerData(Customer customer) throws SQLException {
+        selectedCustomer = customer;
+        nameTextField.setText(customer.getName());
+        addressTextField.setText(customer.getAddress());
+        phoneTextField.setText(customer.getPhoneNumber());
+        String divisionName = FirstLevelDivisionDAO.getDivisionNameById(customer.getDivisionId());
+        System.out.println(divisionName);
+        String countryName = CountryDAO.getCountryNameByDivisionName(divisionName);
+        countrySelector.setValue(countryName);
+        stateSelector.setValue(divisionName);
+        postalCodeTextField.setText(customer.getPostalCode());
+    }
+
+    /**
+     * Cancels update and returns to the main dashboard without making any changes
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
+    public void onCancelClick(ActionEvent actionEvent) throws SQLException, IOException {
+        Stage stage = (Stage) cancelButton.getScene().getWindow();
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root);
+
+        MainDashboardController mainDashboardController = fxmlLoader.getController();
+        long userId = UserSession.getInstance().getUserId();
+        List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(UserSession.getInstance().getUserId());
+        List<Customer> allCustomersList = CustomerDAO.getCustomers();
+        mainDashboardController.refreshAppointmentTable(userAppointmentList);
+        mainDashboardController.refreshCustomerTable(allCustomersList);
+        stage.setTitle("Appointment Management System - Your Appointments");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    /**
+     * Handles all the first level division switching when a country is selected
+     * @throws SQLException
+     */
     public void firstLevelDivisionSwitch() throws SQLException {
         List<FirstLevelDivision> divisions = null;
         firstLevelDivisions.clear();
@@ -183,8 +210,7 @@ public class UpdateCustomerController implements Initializable {
             } else {
                 divisions = new ArrayList();
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

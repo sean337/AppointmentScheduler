@@ -10,10 +10,17 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides access to the first level divisions in the database
+ */
 public class FirstLevelDivisionDAO {
 
-    //this will return states WHERE the country ID matches the country ID selected in the combo box
-
+    /**
+     * Gets all first level divisions
+     *
+     * @return
+     * @throws SQLException
+     */
     public static List<FirstLevelDivision> getFirstLevelDivision() throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.first_level_divisions";
@@ -40,14 +47,21 @@ public class FirstLevelDivisionDAO {
         return firstLevelDivisions;
     }
 
+    /**
+     * Gets a division by a particular name
+     *
+     * @param divisionName
+     * @return
+     * @throws SQLException
+     */
     public static long getDivisionIdByName(String divisionName) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT Division_ID FROM client_schedule.first_level_divisions WHERE Division = ?";
         PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);
-        preparedStatement.setString(1,divisionName);
+        preparedStatement.setString(1, divisionName);
         ResultSet resultSet = preparedStatement.executeQuery();
         long divisionId = -1;
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             divisionId = resultSet.getLong("Division_ID");
         }
         DBConnection.closeConnection();
@@ -61,13 +75,20 @@ public class FirstLevelDivisionDAO {
         preparedStatement.setLong(1, divisionId);
         ResultSet resultSet = preparedStatement.executeQuery();
         String divisionName = " ";
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             divisionName = resultSet.getString("Division");
         }
         DBConnection.closeConnection();
         return divisionName;
     }
 
+    /**
+     * Returns a list of first level divisions given a particular country ID
+     *
+     * @param id
+     * @return
+     * @throws SQLException
+     */
     public static List<FirstLevelDivision> sortedDivisions(long id) throws SQLException {
         DBConnection.openConnection();
         String sqlStatement = "SELECT * FROM client_schedule.first_level_divisions WHERE Country_ID = ?";
@@ -87,7 +108,7 @@ public class FirstLevelDivisionDAO {
                 FirstLevelDivision firstLevelDivision = new FirstLevelDivision(divisionId, divisionName,
                         createDate.toLocalDateTime(), lastUpdate.toLocalDateTime(), createdBy, lastUpdatedBy, countryId);
                 sortedDivisions.add(firstLevelDivision);
-                System.out.println(firstLevelDivision.toString());
+                System.out.println(firstLevelDivision);
             }
         } catch (SQLException e) {
             e.printStackTrace();

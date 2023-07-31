@@ -1,5 +1,10 @@
 package com.seanmlee.c195.appointmentscheduler.model;
 
+/**
+ * User object
+ *
+ * @author Sean Lee
+ */
 public class User {
 
     private long id;
@@ -43,7 +48,7 @@ public class User {
 
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.getUserName();
     }
 }

@@ -1,5 +1,10 @@
 package com.seanmlee.c195.appointmentscheduler.model;
 
+/**
+ * Contact object
+ *
+ * @author Sean Lee
+ */
 public class Contact {
 
     private long id;

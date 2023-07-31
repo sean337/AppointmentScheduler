@@ -1,5 +1,10 @@
 package com.seanmlee.c195.appointmentscheduler.util;
 
+/**
+ * Keeps track of the user currently logged in for the duration of their sign in period
+ *
+ * @author Sean Lee
+ */
 public class UserSession {
 
     private static UserSession instance;

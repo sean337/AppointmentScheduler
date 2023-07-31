@@ -2,6 +2,11 @@ package com.seanmlee.c195.appointmentscheduler.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * First level division object
+ *
+ * @author Sean Lee
+ */
 public class FirstLevelDivision {
 
     private long id;
@@ -79,7 +84,7 @@ public class FirstLevelDivision {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.getName();
     }
 }

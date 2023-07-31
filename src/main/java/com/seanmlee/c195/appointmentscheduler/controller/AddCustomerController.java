@@ -8,8 +8,6 @@ import com.seanmlee.c195.appointmentscheduler.model.Customer;
 import com.seanmlee.c195.appointmentscheduler.model.FirstLevelDivision;
 import com.seanmlee.c195.appointmentscheduler.util.FormValidator;
 import com.seanmlee.c195.appointmentscheduler.util.UserSession;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,7 +22,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,27 +32,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * @author Sean Lee
+ * This class handles adding a customer to the database
+ */
 public class AddCustomerController implements Initializable {
-    @FXML private AnchorPane addressLabel;
-    @FXML private Text nameLabel;
-    @FXML private TextField nameTextField;
-    @FXML private Text addresslabel;
-    @FXML private TextField addressTextField;
-    @FXML private Text phoneLabel;
-    @FXML private TextField phoneTextField;
-    @FXML private Text countryLabel;
-    @FXML private Text stateLabel;
-    @FXML private Text postalCodeLabel;
-    @FXML private ComboBox countrySelector;
-    @FXML private ComboBox stateSelector;
-    @FXML private TextField postalCodeTextField;
-    @FXML private Button saveButton;
-    @FXML private Button cancelButton;
+    private final ObservableList<String> countryNames = FXCollections.observableArrayList();
+    private final ObservableList<String> firstLevelDivisions = FXCollections.observableArrayList();
+    @FXML
+    private AnchorPane addressLabel;
+    @FXML
+    private Text nameLabel;
+    @FXML
+    private TextField nameTextField;
+    @FXML
+    private Text addresslabel;
+    @FXML
+    private TextField addressTextField;
+    @FXML
+    private Text phoneLabel;
+    @FXML
+    private TextField phoneTextField;
+    @FXML
+    private Text countryLabel;
+    @FXML
+    private Text stateLabel;
+    @FXML
+    private Text postalCodeLabel;
+    @FXML
+    private ComboBox countrySelector;
+    @FXML
+    private ComboBox stateSelector;
+    @FXML
+    private TextField postalCodeTextField;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button cancelButton;
 
-    private ObservableList<String> countryNames = FXCollections.observableArrayList();
-    private ObservableList<String> firstLevelDivisions = FXCollections.observableArrayList();
-
-
+    /**
+     * Sets up all the pre-populated combo boxes
+     *
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -66,7 +86,7 @@ public class AddCustomerController implements Initializable {
             throw new RuntimeException(e);
         }
         countrySelector.setItems(countryNames);
-        countrySelector.valueProperty().addListener((observableValue, o, t1) -> {
+        countrySelector.valueProperty().addListener((observableValue, oldDivisions, newDivisions) -> {
             try {
                 firstLevelDivisionSwitch();
             } catch (SQLException e) {
@@ -76,6 +96,11 @@ public class AddCustomerController implements Initializable {
     }
 
 
+    /**
+     * This method handles switching the first level divisions to match their appropriate countries
+     *
+     * @throws SQLException
+     */
     public void firstLevelDivisionSwitch() throws SQLException {
         List<FirstLevelDivision> divisions = null;
         firstLevelDivisions.clear();
@@ -103,12 +128,19 @@ public class AddCustomerController implements Initializable {
             } else {
                 divisions = new ArrayList();
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * This method saves a customer by collecting the data from the user input fields
+     * assigning it to a new customer attribute, pushing it to the database and launching the main dashboard again
+     *
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
     public void onSaveClick(ActionEvent actionEvent) throws SQLException, IOException {
 
         boolean result = FormValidator.emptyCustomerFieldCheck(nameTextField, addressTextField, phoneTextField, postalCodeTextField,
@@ -149,6 +181,13 @@ public class AddCustomerController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Cancels create customer request and returns to main dashboard
+     *
+     * @param actionEvent
+     * @throws SQLException
+     * @throws IOException
+     */
     public void onCancelClick(ActionEvent actionEvent) throws SQLException, IOException {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main-dashboard-view.fxml"));
