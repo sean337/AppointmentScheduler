@@ -20,15 +20,15 @@ import java.util.stream.Stream;
 
 public class FormValidator {
 
-    public static boolean emptyAppointmentFieldCheck(TextField title, TextField description, TextField type,
+    public static boolean emptyAppointmentFieldCheck(TextField title, TextField description, ComboBox type,
                                                      TextField location, DatePicker startDay, DatePicker endDay,
                                                      ComboBox startTime, ComboBox endTime, ComboBox customer,
                                                      ComboBox user, ComboBox contact) {
 
-        return Stream.of(title.getText(), description.getText(), type.getText(), location.getText(), startDay.getValue(),
+        return Stream.of(title.getText(), description.getText(), type.getValue(), location.getText(), startDay.getValue(),
                 endDay.getValue(), startTime.getValue(), endTime.getValue(), customer.getValue(), user.getValue(),
                 contact.getValue()).anyMatch(Objects::isNull) || Stream.of(title.getText(), description.getText(),
-                type.getText(), location.getText()).anyMatch(String::isEmpty);
+                location.getText()).anyMatch(String::isEmpty);
 
     }
     public static boolean emptyCustomerFieldCheck(TextField name, TextField address, TextField phone, TextField postalCode,

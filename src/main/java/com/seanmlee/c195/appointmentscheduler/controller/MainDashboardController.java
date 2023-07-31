@@ -207,7 +207,7 @@ public class MainDashboardController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Confirm Action");
                 alert.setHeaderText("Are You Sure?");
-                alert.setContentText("Once you delete an appointment this action can't be undone!");
+                alert.setContentText("Once you delete a customer this action can't be undone!");
 
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == ButtonType.OK) {

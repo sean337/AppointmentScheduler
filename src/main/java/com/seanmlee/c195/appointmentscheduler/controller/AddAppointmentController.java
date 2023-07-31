@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 public class AddAppointmentController implements Initializable {
 
+    @FXML private ComboBox apptTypeComboBox;
     @FXML private Text apptTitleLabel;
     @FXML private TextField apptTitleTextField;
     @FXML private Text appTypetLabel;
@@ -63,6 +64,8 @@ public class AddAppointmentController implements Initializable {
     @FXML private ComboBox apptContactComboBox;
     @FXML private Text newAppointmentTitle;
 
+    ObservableList appointmentTypes = FXCollections.observableArrayList();
+
 
     private ObservableList<Customer>  customers = FXCollections.observableArrayList();
 
@@ -74,13 +77,13 @@ public class AddAppointmentController implements Initializable {
 
 
         boolean result = FormValidator.emptyAppointmentFieldCheck(apptTitleTextField, apptDescriptionTextField,
-                apptTypeTextField, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
+                apptTypeComboBox, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
                 apptStartTimeComboBox, apptEndTimeComboBox, apptCustomerComboBox, apptUserComboBox,
                 apptContactComboBox);
 
         if (result) {
             FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out" +
-                    "to schedule an appointment");
+                    " to schedule an appointment");
             return;
         }
             String currentUserName = UserDAO.getLoggedInUserName();
@@ -167,6 +170,8 @@ public class AddAppointmentController implements Initializable {
             apptStartTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
             apptEndTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
             apptUserComboBox.setItems(users);
+            appointmentTypes.setAll("Planning", "De-Briefing", "Brainstorming", "Progress Review");
+            apptTypeComboBox.setItems(appointmentTypes);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -27,45 +27,66 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.Month;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ReportsController implements Initializable {
 
-    @FXML private Text reportsLabel;
-    @FXML private TableView appointmentTableView;
-    @FXML private TableColumn apptIdColumn;
-    @FXML private TableColumn apptTitleColumn;
-    @FXML private TableColumn apptTypeColumn;
-    @FXML private TableColumn apptDescriptionColumn;
-    @FXML private TableColumn apptStartColumn;
-    @FXML private TableColumn apptEndColumn;
-    @FXML private TableColumn apptLocationColumn;
-    @FXML private TableColumn apptCustomerColumn;
-    @FXML private Button signOutButton;
-    @FXML private ComboBox contactComboBox;
-    @FXML private Text contactLabel;
-    @FXML private TableView yearlyGlanceTable;
-    @FXML private TableColumn monthCol;
-    @FXML private TableColumn apptTypeCol2;
-    @FXML private TableColumn totalAppointments;
-    @FXML private TableView divisionTable;
-    @FXML private TableColumn divisionName;
-    @FXML private TableColumn totalCustomers;
-    @FXML private Button backButton;
+    @FXML
+    private TableColumn appointmentType;
+    @FXML
+    private Text reportsLabel;
+    @FXML
+    private TableView appointmentTableView;
+    @FXML
+    private TableColumn apptIdColumn;
+    @FXML
+    private TableColumn apptTitleColumn;
+    @FXML
+    private TableColumn apptTypeColumn;
+    @FXML
+    private TableColumn apptDescriptionColumn;
+    @FXML
+    private TableColumn apptStartColumn;
+    @FXML
+    private TableColumn apptEndColumn;
+    @FXML
+    private TableColumn apptLocationColumn;
+    @FXML
+    private TableColumn apptCustomerColumn;
+    @FXML
+    private Button signOutButton;
+    @FXML
+    private ComboBox contactComboBox;
+    @FXML
+    private Text contactLabel;
+    @FXML
+    private TableView yearlyGlanceTable;
+    @FXML
+    private TableColumn monthCol;
+    @FXML
+    private TableColumn apptTypeCol2;
+    @FXML
+    private TableColumn totalAppointments;
+    @FXML
+    private TableView divisionTable;
+    @FXML
+    private TableColumn divisionName;
+    @FXML
+    private TableColumn totalCustomers;
+    @FXML
+    private Button backButton;
 
     private Contact selectedContact;
 
     private List<Appointment> appointments;
 
-    private  ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
-    private  ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
+    private ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    private ObservableList<Contact> contactsObservableList = FXCollections.observableArrayList();
 
     private ObservableList<Report> yearlyGlanceObservableList = FXCollections.observableArrayList();
 
     private ObservableList<Report> divisionsOberservableList = FXCollections.observableArrayList();
-    private HashMap<Month, Report> monthlyReportMap = new HashMap<Month, Report>();
+    private HashMap<String, Report> monthlyReportMap = new HashMap<String, Report>();
 
     private HashMap<String, Report> divisionReportMap = new HashMap<>();
 
@@ -81,6 +102,11 @@ public class ReportsController implements Initializable {
         appointmentTableView.refresh();
     }
 
+    /**
+     *  Goes back to the welcome controller
+     * @param actionEvent
+     * @throws IOException
+     */
     public void backButtonClick(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) backButton.getScene().getWindow();
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("welcome-view.fxml"));
@@ -94,6 +120,11 @@ public class ReportsController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Signs out of the current user, clears the session instance and loads the login page again
+     * @param actionEvent
+     * @throws IOException
+     */
     public void signOutClick(ActionEvent actionEvent) throws IOException {
         UserSession.resetInstance();
         Stage stage = (Stage) signOutButton.getScene().getWindow();
@@ -104,63 +135,79 @@ public class ReportsController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Method runs as soon as the class is called to update changes in the tables
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Get all contacts from database and add them to an observable list
         try {
             contactsObservableList.setAll(ContactDAO.getContacts());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        // Add that list to the associated combo box
         contactComboBox.setItems(contactsObservableList);
-        contactComboBox.valueProperty().addListener((observableValue, o, t1) -> {
+        // listener allows the tables to refresh any time the contact is changed
+        contactComboBox.valueProperty().addListener((observableValue, oldContact, newContact) -> {
+
+            // Clear all data structures when a contact is changed
             appointmentObservableList.clear();
             yearlyGlanceObservableList.clear();
-            monthlyReportMap.clear();
-
             divisionsOberservableList.clear();
             monthlyReportMap.clear();
-
+            // Gets the selected contact and grabs the appointments from the database
             selectedContact = (Contact) contactComboBox.getSelectionModel().getSelectedItem();
             try {
                 appointments = AppointmentDAO.getAppointmentByContactId(selectedContact.getId());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+            // sets the appointments in the observable list, adds them to the proper table view and refreshes
             appointmentObservableList.setAll(appointments);
             appointmentTableView.setItems(appointmentObservableList);
             appointmentTableView.refresh();
 
-            // Loops through each month of the year
-            // Creates a Report Object by creating a new report for each Month and assigning it a count of 0
-            //Adds the month value as a key, and the report object to the hashmap
-            for (Month month : Month.values()) {
-                Report report = new Report(month, 0);
-                yearlyGlanceObservableList.add(report);
-                monthlyReportMap.put(month, report);
-            }
-
-            // Loops through each appointment in current selected appointment list
-            // selects the month from the start of each appointment, gets the report from the map stored with that Key(month)
-            // if the report isn't null it adds 1 to the appointment count from the report
-            //updates the year at a glance table
+            // loops through all the appointments extracting the start month, appointment type
+            // and uses them to create a string to use a key for the map
+            // create a new report with that extracted data
+            // If the key already exists in the map we'll add 1 to the appointment count of that report
             for (Appointment appointment : appointments) {
                 Month month = appointment.getStart().getMonth();
-                Report report = monthlyReportMap.get(month);
-                if (report != null) {
+                String type = appointment.getType();
+                String mapKey = month + "-" + type;
+
+                Report report = monthlyReportMap.get(mapKey);
+                if (report == null) {
+                    report = new Report(month, type, 1);
+                    monthlyReportMap.put(mapKey, report);
+                } else {
                     report.setAppointmentCount(report.getAppointmentCount() + 1);
                 }
             }
+
+            // creates a list to store the reports with the update count values
+            List<Report> reports = new ArrayList<>(monthlyReportMap.values());
+
+            // sets that report in the observable list, sets it in the table and refreshes
+            yearlyGlanceObservableList.setAll(reports);
             yearlyGlanceTable.setItems(yearlyGlanceObservableList);
             yearlyGlanceTable.refresh();
 
 
+            // Handles the customers by region report table
             for (FirstLevelDivision division : divisionsList) {
                 String divisionName = division.getName();
                 Report report = new Report(divisionName, 0);
                 divisionsOberservableList.add(report);
                 divisionReportMap.put(divisionName, report);
-                }
-
+            }
+            // loops through all the appointments finding the customer associated with each
+            // extracts the division name for that customer and looks for it in the Map
+            // if it doesn't exist we'll set it and add 1 to the customer count value in that division
+            // set items in observable list and refresh the tables.
             for (Appointment appointment : appointments) {
                 try {
                     Customer customer = CustomerDAO.findCustomer(appointment.getCustomerId());
@@ -179,7 +226,7 @@ public class ReportsController implements Initializable {
             divisionTable.refresh();
         });
 
-
+        // Pairs all columns to the correct object and attribute
         apptIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         apptTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         apptDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -191,6 +238,7 @@ public class ReportsController implements Initializable {
 
 
         monthCol.setCellValueFactory(new PropertyValueFactory<>("month"));
+        appointmentType.setCellValueFactory(new PropertyValueFactory<>("appointmentType"));
         totalAppointments.setCellValueFactory(new PropertyValueFactory<>("appointmentCount"));
         yearlyGlanceTable.refresh();
 

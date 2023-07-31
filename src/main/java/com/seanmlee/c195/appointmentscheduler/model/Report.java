@@ -7,13 +7,18 @@ import java.time.Month;
 
 public class Report {
     private Month month;
+
+    private String appointmentType;
     private int appointmentCount;
     private Customer customer;
     private int customerCount;
     private FirstLevelDivision division;
-
     private String divisionName;
 
+    private static int planningCount = 0;
+    private static int debriefingCount = 0;
+    private static int brainstormingCount = 0;
+    private static int progressCount = 0;
 
     public Report(String divisionName, int customerCount) {
         this.customerCount = customerCount;
@@ -29,11 +34,17 @@ public class Report {
         this.division = division;
     }
 
-    public Report(Month month, int appointmentCount) {
+    public Report(Month month, String appointmentType, int appointmentCount) {
+        this.appointmentType = appointmentType;
         this.month = month;
         this.appointmentCount = appointmentCount;
     }
 
+    public Report(Appointment appointment) {
+        this.month = appointment.getStart().getMonth();
+        this.appointmentType = appointment.getType();
+        this.appointmentCount = 1;
+    }
 
     public FirstLevelDivision getDivision() {
         return this.division;
@@ -79,7 +90,14 @@ public class Report {
         return divisionName;
     }
 
+
     public void setDivisionName(String divisionName) {
         this.divisionName = divisionName;
+    }
+
+    public void setAppointmentType(String appointmentType) {
+    }
+    public String getAppointmentType() {
+        return appointmentType;
     }
 }

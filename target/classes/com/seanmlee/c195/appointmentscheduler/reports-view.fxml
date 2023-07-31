@@ -34,9 +34,10 @@
             <Font size="22.0" />
          </font>
       </Text>
-      <TableView fx:id="yearlyGlanceTable" layoutX="77.0" layoutY="390.0" prefHeight="200.0" prefWidth="199.0">
+      <TableView fx:id="yearlyGlanceTable" layoutX="82.0" layoutY="390.0" prefHeight="200.0" prefWidth="326.0">
         <columns>
           <TableColumn fx:id="monthCol" prefWidth="75.0" text="Month" />
+            <TableColumn fx:id="appointmentType" prefWidth="125.0" text="Appointment Type" />
             <TableColumn fx:id="totalAppointments" prefWidth="125.0" text="Total Appointments" />
         </columns>
       </TableView>

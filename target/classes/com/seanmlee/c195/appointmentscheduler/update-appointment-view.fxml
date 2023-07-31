@@ -26,7 +26,6 @@
                 <Font size="18.0" />
             </font>
         </Text>
-        <TextField fx:id="apptTypeTextField" layoutX="128.0" layoutY="164.0" prefHeight="26.0" prefWidth="319.0" />
         <Text fx:id="apptDescriptionLabel" layoutX="13.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:" wrappingWidth="100.3515625">
             <font>
                 <Font size="18.0" />
@@ -85,5 +84,6 @@
             </font>
         </Text>
         <ComboBox fx:id="apptContactComboBox" layoutX="128.0" layoutY="528.0" prefHeight="26.0" prefWidth="319.0" />
+      <ComboBox fx:id="apptTypeComboBox" layoutX="128.0" layoutY="164.0" prefHeight="26.0" prefWidth="319.0" />
     </children>
 </AnchorPane>

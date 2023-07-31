@@ -38,11 +38,11 @@ import java.util.ResourceBundle;
 public class UpdateAppointmentController implements Initializable {
 
 
+    @FXML private ComboBox apptTypeComboBox;
     @FXML private Text updateAppointmentTitle;
     @FXML private Text apptTitleLabel;
     @FXML private TextField apptTitleTextField;
     @FXML private Text appTypetLabel;
-    @FXML private TextField apptTypeTextField;
     @FXML private Text apptDescriptionLabel;
     @FXML private TextField apptDescriptionTextField;
     @FXML private Text apptLocationLabel;
@@ -66,6 +66,7 @@ public class UpdateAppointmentController implements Initializable {
     @FXML private Text apptContactLabel;
     @FXML private ComboBox apptContactComboBox;
 
+    private ObservableList<String> appointmentTypes = FXCollections.observableArrayList();
     private ObservableList<Contact> contacts = FXCollections.observableArrayList();
     private ObservableList<Customer> customers = FXCollections.observableArrayList();
     private ObservableList<User> users = FXCollections.observableArrayList();
@@ -86,13 +87,15 @@ public class UpdateAppointmentController implements Initializable {
         }
         apptStartTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
         apptEndTimeComboBox.setItems(DateTimeUtil.generateTimeSlots());
+        appointmentTypes.setAll("Planning", "De-Briefing", "Brainstorming", "Progress Review");
+        apptTypeComboBox.setItems(appointmentTypes);
 
     }
 
     public void setAppointmentData(Appointment appointment) {
         selectedAppointment = appointment;
         apptTitleTextField.setText(appointment.getTitle());
-        apptTypeTextField.setText(appointment.getType());
+        apptTypeComboBox.setValue(appointment.getType());
         apptDescriptionTextField.setText(appointment.getDescription());
         apptLocationTextField.setText(appointment.getLocation());
         apptStartDatePicker.setValue(appointment.getStart().toLocalDate());
@@ -128,17 +131,17 @@ public class UpdateAppointmentController implements Initializable {
 
     public void onSaveModsButtonClick(ActionEvent actionEvent) throws SQLException, IOException {
         boolean result = FormValidator.emptyAppointmentFieldCheck(apptTitleTextField, apptDescriptionTextField,
-                apptTypeTextField, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
+                apptTypeComboBox, apptLocationTextField, apptStartDatePicker, apptEndDatePicker,
                 apptStartTimeComboBox, apptEndTimeComboBox, apptCustomerComboBox, apptUserComboBox,
                 apptContactComboBox);
 
         if (result) {
             FormValidator.showAlert("Warning", "Empty fields found!", "All fields must be filled out" +
-                    "to schedule an appointment");
+                    " to schedule an appointment");
             return;
         }
             String title = apptTitleTextField.getText();
-            String type = apptTypeTextField.getText();
+            String type = (String) apptTypeComboBox.getValue();
             String description = apptDescriptionTextField.getText();
             String location = apptLocationTextField.getText();
             LocalDateTime start = DateTimeUtil.parseDateTime(apptStartDatePicker, apptStartTimeComboBox);
@@ -201,11 +204,15 @@ public class UpdateAppointmentController implements Initializable {
         MainDashboardController mainDashboardController = fxmlLoader.getController();
         long userId = UserSession.getInstance().getUserId();
         List<Appointment> userAppointmentList = AppointmentDAO.getAppointments(userId);
+        List<Customer> allCustomerList = CustomerDAO.getCustomers();
+        mainDashboardController.refreshCustomerTable(allCustomerList);
         mainDashboardController.refreshAppointmentTable(userAppointmentList);
 
         stage.setTitle("Appointment Management System - Your Appointments");
         stage.setScene(scene);
         stage.show();
     }
+
+
 
 }
