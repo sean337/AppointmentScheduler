@@ -163,9 +163,6 @@ public class ReportsController implements Initializable {
 
             // Clear all data structures when a contact is changed
             appointmentObservableList.clear();
-            yearlyGlanceObservableList.clear();
-            divisionsOberservableList.clear();
-            monthlyReportMap.clear();
             // Gets the selected contact and grabs the appointments from the database
             selectedContact = (Contact) contactComboBox.getSelectionModel().getSelectedItem();
             try {
@@ -177,62 +174,66 @@ public class ReportsController implements Initializable {
             appointmentObservableList.setAll(appointments);
             appointmentTableView.setItems(appointmentObservableList);
             appointmentTableView.refresh();
-
-            // loops through all the appointments extracting the start month, appointment type
-            // and uses them to create a string to use a key for the map
-            // create a new report with that extracted data
-            // If the key already exists in the map we'll add 1 to the appointment count of that report
-            for (Appointment appointment : appointments) {
-                Month month = appointment.getStart().getMonth();
-                String type = appointment.getType();
-                String mapKey = month + "-" + type;
-
-                Report report = monthlyReportMap.get(mapKey);
-                if (report == null) {
-                    report = new Report(month, type, 1);
-                    monthlyReportMap.put(mapKey, report);
-                } else {
-                    report.setAppointmentCount(report.getAppointmentCount() + 1);
-                }
-            }
-
-            // creates a list to store the reports with the update count values
-            List<Report> reports = new ArrayList<>(monthlyReportMap.values());
-
-            // sets that report in the observable list, sets it in the table and refreshes
-            yearlyGlanceObservableList.setAll(reports);
-            yearlyGlanceTable.setItems(yearlyGlanceObservableList);
-            yearlyGlanceTable.refresh();
-
-
-            // Handles the customers by region report table
-            for (FirstLevelDivision division : divisionsList) {
-                String divisionName = division.getName();
-                Report report = new Report(divisionName, 0);
-                divisionsOberservableList.add(report);
-                divisionReportMap.put(divisionName, report);
-            }
-            // loops through all the appointments finding the customer associated with each
-            // extracts the division name for that customer and looks for it in the Map
-            // if it doesn't exist we'll set it and add 1 to the customer count value in that division
-            // set items in observable list and refresh the tables.
-            for (Appointment appointment : appointments) {
-                try {
-                    Customer customer = CustomerDAO.findCustomer(appointment.getCustomerId());
-                    String divisionName = FirstLevelDivisionDAO.getDivisionNameById(customer.getDivisionId());
-                    Report report = divisionReportMap.get(divisionName);
-                    if (report != null) {
-                        report.setCustomerCount(report.getCustomerCount() + 1);
-                        System.out.println(report.getCustomerCount());
-                        System.out.println(report.getDivisionName());
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            divisionTable.setItems(divisionsOberservableList);
-            divisionTable.refresh();
         });
+
+        // loops through all the appointments extracting the start month, appointment type
+        // and uses them to create a string to use a key for the map
+        // create a new report with that extracted data
+        // If the key already exists in the map we'll add 1 to the appointment count of that report
+        List<Appointment> allAppointments;
+        try {
+            allAppointments = AppointmentDAO.getAllAppointments();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        for (Appointment appointment : allAppointments) {
+            Month month = appointment.getStart().getMonth();
+            String type = appointment.getType();
+            String mapKey = month + "-" + type;
+
+            Report report = monthlyReportMap.get(mapKey);
+            if (report == null) {
+                report = new Report(month, type, 1);
+                monthlyReportMap.put(mapKey, report);
+            } else {
+                report.setAppointmentCount(report.getAppointmentCount() + 1);
+            }
+        }
+
+        // creates a list to store the reports with the update count values
+        List<Report> reports = new ArrayList<>(monthlyReportMap.values());
+
+        // sets that report in the observable list, sets it in the table and refreshes
+        yearlyGlanceObservableList.setAll(reports);
+        yearlyGlanceTable.setItems(yearlyGlanceObservableList);
+        yearlyGlanceTable.refresh();
+
+
+        // Handles the customers by region report table
+        for (FirstLevelDivision division : divisionsList) {
+            String divisionName = division.getName();
+            Report report = new Report(divisionName, 0);
+            divisionsOberservableList.add(report);
+            divisionReportMap.put(divisionName, report);
+        }
+        // loops through all the appointments finding the customer associated with each
+        // extracts the division name for that customer and looks for it in the Map
+        // if it doesn't exist we'll set it and add 1 to the customer count value in that division
+        // set items in observable list and refresh the tables.
+        for (Appointment appointment : allAppointments) {
+            try {
+                Customer customer = CustomerDAO.findCustomer(appointment.getCustomerId());
+                String divisionName = FirstLevelDivisionDAO.getDivisionNameById(customer.getDivisionId());
+                Report report = divisionReportMap.get(divisionName);
+                if (report != null) {
+                    report.setCustomerCount(report.getCustomerCount() + 1);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        divisionTable.setItems(divisionsOberservableList);
+        divisionTable.refresh();
 
         // Pairs all columns to the correct object and attribute
         apptIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -253,7 +254,5 @@ public class ReportsController implements Initializable {
         divisionName.setCellValueFactory(new PropertyValueFactory<>("divisionName"));
         totalCustomers.setCellValueFactory(new PropertyValueFactory<>("customerCount"));
         divisionTable.refresh();
-
-
     }
 }

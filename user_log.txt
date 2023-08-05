@@ -1,2 +1,4 @@
-Aug 05, 2023 9:39:39 AM com.seanmlee.c195.appointmentscheduler.util.UserLogger stampUserLogin
+Aug 05, 2023 10:03:31 AM com.seanmlee.c195.appointmentscheduler.util.UserLogger stampUserLogin
 INFO: test Signed into the application
+Aug 05, 2023 10:03:39 AM com.seanmlee.c195.appointmentscheduler.util.UserLogger stampInvalidUser
+INFO: invalid login attempt: UserName: incorrect Password: password

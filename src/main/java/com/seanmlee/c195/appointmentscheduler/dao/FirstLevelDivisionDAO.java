@@ -108,7 +108,6 @@ public class FirstLevelDivisionDAO {
                 FirstLevelDivision firstLevelDivision = new FirstLevelDivision(divisionId, divisionName,
                         createDate.toLocalDateTime(), lastUpdate.toLocalDateTime(), createdBy, lastUpdatedBy, countryId);
                 sortedDivisions.add(firstLevelDivision);
-                System.out.println(firstLevelDivision);
             }
         } catch (SQLException e) {
             e.printStackTrace();

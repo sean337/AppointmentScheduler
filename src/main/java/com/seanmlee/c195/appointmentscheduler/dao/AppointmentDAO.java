@@ -56,6 +56,43 @@ public class AppointmentDAO {
         return appointmentList;
     }
 
+    public static List<Appointment> getAllAppointments() throws SQLException {
+        DBConnection.openConnection();
+        String sqlStatement = "SELECT * FROM client_schedule.appointments";
+        PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Appointment> appointmentList = new ArrayList<>();
+        try {
+            while (resultSet.next()) {
+                long appointmentId = resultSet.getLong("Appointment_ID");
+                String title = resultSet.getString("Title");
+                String description = resultSet.getString("Description");
+                String location = resultSet.getString("Location");
+                String type = resultSet.getString("Type");
+                Timestamp startTimestamp = resultSet.getTimestamp("Start");
+                Timestamp endTimeStamp = resultSet.getTimestamp("End");
+                Timestamp createTimeStamp = resultSet.getTimestamp("Create_Date");
+                LocalDateTime start = startTimestamp.toLocalDateTime();
+                LocalDateTime end = endTimeStamp.toLocalDateTime();
+                LocalDateTime createDate = createTimeStamp.toLocalDateTime();
+                String createdBy = resultSet.getString("Created_By");
+                Timestamp lastUpdateTimeStamp = resultSet.getTimestamp("Last_Update");
+                LocalDateTime lastUpdate = lastUpdateTimeStamp.toLocalDateTime();
+                String lastUpdatedBy = resultSet.getString("Last_Updated_By");
+                long customerId = resultSet.getLong("Customer_ID");
+                long userIdCol = resultSet.getLong("User_ID");
+                long contactId = resultSet.getLong("Contact_ID");
+                Appointment appointment = new Appointment(appointmentId, title, description, location, type, start, end,
+                        createDate, lastUpdate, createdBy, lastUpdatedBy, customerId, userIdCol, contactId);
+                appointmentList.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        DBConnection.closeConnection();
+        return appointmentList;
+    }
+
     /**
      * Returns all appointments in the next 30days
      *
