@@ -31,6 +31,8 @@ import java.util.ResourceBundle;
  */
 public class WelcomeController implements Initializable {
     @FXML
+    private Text noAppointmentsLabel;
+    @FXML
     private Text welcomeLabel;
     @FXML
     private Button viewAppointmentsButton;
@@ -101,10 +103,20 @@ public class WelcomeController implements Initializable {
     }
 
     /**
-     * Gathers the appointments and lets user know if they have an appointment in the next 15 minutes
+     * Initializes the GUI components when the view is loaded and checks for upcoming appointments.
      *
-     * @param url
-     * @param resourceBundle
+     * This method is called after all @FXML annotated members have been injected. It retrieves the appointments for the
+     * current user from the database and checks if there are any appointments starting in the next 15 minutes. If there
+     * are, it displays an alert to the user.
+     *
+     * The lambda expression in this method is used in a stream pipeline to filter the list of appointments. The lambda
+     * expression defines the filter condition: an appointment is included in the resulting list if its start time is
+     * after the current time and before 15 minutes from now. Using a lambda expression here allows us to define this
+     * condition directly within the call to filter(), making the code more concise and easier to read.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle The resources used to localize the root object, or null if the root object was not localized.
+     * @throws RuntimeException if an SQLException occurs while retrieving appointments from the database.
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -119,10 +131,17 @@ public class WelcomeController implements Initializable {
                         && appointment.getStart().isBefore(LocalDateTime.now().plusMinutes(15))).toList();
         if (!upcomingAppointments.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("REMINDER!!!");
-            alert.setHeaderText("Appointment Starting Soon");
-            alert.setContentText("You have " + upcomingAppointments.size() + " appointments in the next 15 minutes");
+            alert.setTitle("REMINDER! Appointment stating soon!");
+            alert.setHeaderText("You have " + upcomingAppointments.size() + " appointments in the next 15 minutes");
+            StringBuilder appointmentStarts = new StringBuilder();
+            for (Appointment appointment : upcomingAppointments) {
+                appointmentStarts.append("\nAppointment ID: " + appointment.getId() +
+                        "\nAppointment Start Time: " + appointment.getStart().toString());
+            }
+            alert.setContentText(appointmentStarts.toString());
             alert.showAndWait();
+        } else {
+            noAppointmentsLabel.setVisible(true);
         }
     }
 }

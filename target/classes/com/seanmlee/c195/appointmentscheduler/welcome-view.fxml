@@ -15,5 +15,6 @@
       <Button fx:id="viewAppointmentsButton" layoutX="104.0" layoutY="174.0" mnemonicParsing="false" onAction="#onViewApptButtonClick" text="Appointments &amp; Customers" />
       <Button fx:id="reportsButton" layoutX="126.0" layoutY="211.0" mnemonicParsing="false" onAction="#onViewReportsButtonClick" prefHeight="26.0" prefWidth="124.0" text="View Reports" />
       <Button fx:id="signOutButton" layoutX="126.0" layoutY="360.0" mnemonicParsing="false" onAction="#onSignOutButtonClick" prefHeight="26.0" prefWidth="124.0" text="Sign Out" />
+      <Text fx:id="noAppointmentsLabel" layoutX="77.0" layoutY="291.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Appointments in the Next 15 Minutes!" visible="false" />
    </children>
 </AnchorPane>

@@ -1,5 +1,26 @@
 # Appointment Scheduling Java app
 
+Purpose: The application is designed to manage and schedule appointments for a global organization. It provides features to add, update, delete, and view detailed information about appointments, customers, and reports.
+
+Author: Sean Lee
+
+Application Version: 1.0
+
+Date: 08/03/2023
+
+IDE: IntelliJ IDEA Community Edition 2023.1
+JDK: Java SE 17.0.1
+JavaFX: JavaFX-SDK-17.0.1
+
+Directions to Run the Program:
+1. Open the project in IntelliJ IDEA.
+2. Ensure that the JDK and JavaFX versions are correctly set in the project settings.
+3. Run the Main class to start the application.
+
+Additional Report: The additional report provides a monthly overview of all appointments. It includes the month, the type of appointment, and the total number of each type of appointment for the selected month.
+
+MySQL Connector Driver Version: mysql-connector-java-8.0.27
+
 Scenario:
 
 You are working for a software company that has been contracted to develop a scheduling desktop user interface application. The contract is with a global consulting organization that conducts business in multiple languages and has main offices in Phoenix, Arizona; New York, New York; and London, England. The consulting organization has provided a MySQL database that your application must pull data from. The database is used for other systems and therefore its structure cannot be modified.

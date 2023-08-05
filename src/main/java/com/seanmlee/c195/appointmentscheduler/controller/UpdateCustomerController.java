@@ -69,10 +69,23 @@ public class UpdateCustomerController implements Initializable {
     private Customer selectedCustomer;
 
     /**
-     * setups all the pre-populated data and handles switching the first level divisions
-     * @param url
-     * @param resourceBundle
+     * Initializes the GUI components when the view is loaded.
+     *
+     * This method is called after all @FXML annotated members have been injected. It populates the country selector
+     * combo box with country names retrieved from the database. It also sets up a listener on the country selector
+     * combo box to update the first level division selector whenever the selected country changes.
+     *
+     * The lambda expression in this method is used to create a listener for the country selector combo box's value
+     * property. Using a lambda expression here allows us to define the listener's behavior directly within the call
+     * to valueProperty().addListener(), making the code more concise and easier to read. The listener calls the
+     * firstLevelDivisionSwitch() method whenever the selected country changes, ensuring that the first level division
+     * selector is always up to date.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle The resources used to localize the root object, or null if the root object was not localized.
+     * @throws RuntimeException if an SQLException occurs while retrieving countries from the database.
      */
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
             for (Country country : CountryDAO.getCountries()) {

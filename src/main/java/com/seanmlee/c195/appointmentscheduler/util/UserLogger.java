@@ -15,7 +15,7 @@ public class UserLogger {
     static {
         FileHandler fileHandler = null;
         try {
-            fileHandler = new FileHandler("user_log.txt");
+            fileHandler = new FileHandler("user_log.txt", true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -26,6 +26,10 @@ public class UserLogger {
 
     public static void stampUserLogin(String userName) throws IOException {
         logger.info(userName + " Signed into the application");
+
+    }
+    public static void stampInvalidUser(String userName, String password) throws IOException {
+        logger.info("invalid login attempt: " + "UserName: " + userName + " Password: " + password);
 
     }
 

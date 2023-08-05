@@ -175,6 +175,21 @@ public class AppointmentDAO {
     }
 
     /**
+     * Deletes appointment from database by customer ID
+     *
+     * @param customerId
+     * @throws SQLException
+     */
+    public static void deleteAppointmentByCustomerId(long customerId) throws SQLException {
+        DBConnection.openConnection();
+        String sqlStatement = "DELETE * FROM client_schedule.appointments WHERE Customer_ID = ?";
+        PreparedStatement preparedStatement = DBConnection.getConnection().prepareStatement(sqlStatement);
+        preparedStatement.setLong(1, customerId);
+        preparedStatement.executeUpdate();
+        DBConnection.closeConnection();
+    }
+
+    /**
      * Adds appointment to database
      *
      * @param appointment

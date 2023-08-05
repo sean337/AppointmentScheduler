@@ -217,7 +217,7 @@ public class UpdateAppointmentController implements Initializable {
             FormValidator.showAlert("Warning", "Invalid Selection", "Your appointment Start " +
                     "must begin after the current date and time");
         } else if (overlapCheck) {
-            FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected user or " +
+            FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected " +
                     "customer has overlapping appointments for the date and time selected.");
         } else {
             Appointment appointment = new Appointment(title, description, location, type, start, end, createDate,

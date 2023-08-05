@@ -31,6 +31,7 @@ public class MainDashboardController implements Initializable {
 
     private final ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
     private final ObservableList<Customer> customerObservableList = FXCollections.observableArrayList();
+    @FXML private TableColumn apptCustomerId;
     @FXML
     private Button reportsButton;
     @FXML
@@ -223,25 +224,20 @@ public class MainDashboardController implements Initializable {
         try {
             long selectedId = selectedCustomer.getId();
             List<Appointment> customerAppointments = AppointmentDAO.getAppointmentsByCustomerID(selectedId);
-            if (customerAppointments.isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Confirm Action");
-                alert.setHeaderText("Are You Sure?");
-                alert.setContentText("Once you delete a customer this action can't be undone!");
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Action");
+            alert.setHeaderText("Are You Sure?");
+            alert.setContentText("Once you delete a customer this action can't be undone! All Customers appointments will be deleted");
 
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.get() == ButtonType.OK) {
-                    CustomerDAO.deleteCustomer(selectedId);
-                    customerTableView.getItems().remove(selectedCustomer);
-                    customerTableView.refresh();
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                CustomerDAO.deleteCustomer(selectedId);
+                customerTableView.getItems().remove(selectedCustomer);
+                customerTableView.refresh();
+                for (Appointment appointment : customerAppointments) {
+                    AppointmentDAO.deleteAppointment(appointment.getId());
                 }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setAlertType(Alert.AlertType.INFORMATION);
-                alert.setTitle("Warning!");
-                alert.setHeaderText("This customer still has upcoming appointments");
-                alert.setContentText("Customers can only be deleted when their appointment is complete");
-                alert.showAndWait();
+                refreshAppointmentTable(AppointmentDAO.getAppointments(UserSession.getInstance().getUserId()));
             }
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -326,6 +322,7 @@ public class MainDashboardController implements Initializable {
         apptCreatedBy.setCellValueFactory(new PropertyValueFactory<>("createdBy"));
         apptUpdatedBy.setCellValueFactory(new PropertyValueFactory<>("lastUpdatedBy"));
         apptLastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdate"));
+        apptCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
         appointmentTableView.refresh();
 
         //Sets up Customer Table

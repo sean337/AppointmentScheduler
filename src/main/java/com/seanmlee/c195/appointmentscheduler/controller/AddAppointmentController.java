@@ -129,7 +129,7 @@ public class AddAppointmentController implements Initializable {
         Customer selectedCustomer = (Customer) apptCustomerComboBox.getValue();
         User selectedUser = (User) apptUserComboBox.getValue();
         String title = apptTitleTextField.getText();
-        String type = apptTypeTextField.getText();
+        String type = (String) apptTypeComboBox.getValue();
         String description = apptDescriptionTextField.getText();
         String location = apptLocationTextField.getText();
         String createdBy = currentUserName;
@@ -142,7 +142,7 @@ public class AddAppointmentController implements Initializable {
 
         boolean startCheck = FormValidator.startDateCheck(start);
         boolean endCheck = FormValidator.endDateCheck(start, end);
-        boolean overlapCheck = FormValidator.appointmentOverlaps(customerId, userId,
+        boolean overlapCheck = FormValidator.appointmentOverlaps(customerId,
                 start, end);
 
         if (endCheck) {
@@ -152,7 +152,7 @@ public class AddAppointmentController implements Initializable {
             FormValidator.showAlert("Warning", "Invalid Selection", "Your appointment Start " +
                     "must begin after the current date and time");
         } else if (overlapCheck) {
-            FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected user or " +
+            FormValidator.showAlert("Warning", "Overlapping Appointment Data", "Selected " +
                     "customer has overlapping appointments for the date and time selected.");
         } else {
             Appointment appointment = new Appointment(title, description, location, type, start, end, currentLocalDateTime,

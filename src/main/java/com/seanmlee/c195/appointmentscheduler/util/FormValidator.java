@@ -62,9 +62,8 @@ public class FormValidator {
         return false;
     }
 
-    public static boolean appointmentOverlaps(long customerId, long userId, LocalDateTime start, LocalDateTime end) throws SQLException {
-        List<Appointment> existingAppointments = AppointmentDAO.getAppointments(userId);
-        existingAppointments.addAll(AppointmentDAO.getAppointmentsByCustomerID(customerId));
+    public static boolean appointmentOverlaps(long customerId, LocalDateTime start, LocalDateTime end) throws SQLException {
+        List<Appointment> existingAppointments = AppointmentDAO.getAppointmentsByCustomerID(customerId);
         for (Appointment appointment : existingAppointments) {
             if (start.isBefore(appointment.getEnd()) && end.isAfter(appointment.getStart())) {
                 return true;

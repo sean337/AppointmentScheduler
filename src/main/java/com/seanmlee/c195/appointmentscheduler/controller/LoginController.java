@@ -79,6 +79,7 @@ public class LoginController implements Initializable {
             alert.setContentText(rb.getString("invalidUserContent"));
             alert.setHeaderText(rb.getString("invalidUserHeader"));
             alert.showAndWait();
+            UserLogger.stampInvalidUser(username, password);
             return;
         }
         UserSession.getInstance(validatedUser.getId(), validatedUser.getUserName());
